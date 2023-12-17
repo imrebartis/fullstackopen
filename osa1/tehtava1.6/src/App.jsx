@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Button from './Button';
 import Statistics from './Statistics';
-import FeedbackHeader from './FeedbackHeader';
+import Header from './Header';
 
 const App = () => {
   // tallenna napit omaan tilaansa
@@ -24,12 +24,15 @@ const App = () => {
   return (
     <>
       <>
-        <FeedbackHeader />
+        <Header text='give feedback' />
         <Button handleClick={handleGoodClick} text='good' />
         <Button handleClick={handleNeutralClick} text='neutral' />
         <Button handleClick={handleBadClick} text='bad' />
       </>
-      <Statistics good={good} neutral={neutral} bad={bad} />
+      <>
+        <Header text='statistics' />
+        <Statistics good={good} neutral={neutral} bad={bad} />
+      </>
     </>
   );
 };
