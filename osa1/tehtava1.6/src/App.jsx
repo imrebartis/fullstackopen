@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Button from './Button';
 import Statistics from './Statistics';
-import Header from './Header';
+import Heading from './Heading';
 
 const App = () => {
   // tallenna napit omaan tilaansa
@@ -24,13 +24,13 @@ const App = () => {
   return (
     <>
       <>
-        <Header text='give feedback' />
+        <Heading text='give feedback' />
         <Button handleClick={handleGoodClick} text='good' />
         <Button handleClick={handleNeutralClick} text='neutral' />
         <Button handleClick={handleBadClick} text='bad' />
       </>
       <>
-        <Header text='statistics' />
+        <Heading text='statistics' />
         <Statistics good={good} neutral={neutral} bad={bad} />
       </>
     </>
