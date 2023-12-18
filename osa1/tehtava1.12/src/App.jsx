@@ -23,16 +23,24 @@ const App = () => {
 
   return (
     <>
-      <div>{anecdotes[selected]}</div>
-      <p>has {votes[selected]} votes</p>
-      <button onClick={voteAnecdote}>vote</button>
-      <button
-        onClick={() =>
-          setSelected(Math.floor(Math.random() * anecdotes.length))
-        }
-      >
-        next anecdote
-      </button>
+      <div>
+        <h2>Anecdote of the day</h2>
+        <p>{anecdotes[selected]}</p>
+        <p>has {votes[selected]} votes</p>
+        <button onClick={voteAnecdote}>vote</button>
+        <button
+          onClick={() =>
+            setSelected(Math.floor(Math.random() * anecdotes.length))
+          }
+        >
+          next anecdote
+        </button>
+      </div>
+      <div>
+        <h2>Anecdote with most votes</h2>
+        <p>{anecdotes[votes.indexOf(Math.max(...votes))]}</p>
+        <p>has {Math.max(...votes)} votes</p>
+      </div>
     </>
   );
 };
