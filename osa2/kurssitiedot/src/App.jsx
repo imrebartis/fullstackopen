@@ -1,4 +1,5 @@
 import Course from './components/Course';
+import Total from './components/Total';
 
 const App = () => {
   const course = {
@@ -26,6 +27,7 @@ const App = () => {
   return (
     <div>
       <Course course={course} />
+      <Total parts={course.parts} />
     </div>
   );
 };
