@@ -29,9 +29,13 @@ const App = () => {
       number: newNumber,
     };
 
-    setPersons([...persons, personObject]);
-    setNewName('');
-    setNewNumber('');
+    axios
+      .post('http://localhost:3001/persons', personObject)
+      .then((response) => {
+        setPersons([...persons, response.data]);
+        setNewName('');
+        setNewNumber('');
+      });
   };
 
   const handleNameChange = (event) => {
