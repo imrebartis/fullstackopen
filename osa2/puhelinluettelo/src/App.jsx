@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
-import SearchFilter from './components/SearchFilter';
-import PersonForm from './components/PersonForm';
-import Persons from './components/Persons';
+import { useState, useEffect } from "react";
+import SearchFilter from "./components/SearchFilter";
+import PersonForm from "./components/PersonForm";
+import Persons from "./components/Persons";
+import personsService from "./services/persons";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -11,9 +11,7 @@ const App = () => {
   const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then((response) => setPersons(response.data));
+    personsService.getAll().then((initialPersons) => setPersons(initialPersons));
   }, []);
 
   const addPerson = (event) => {
@@ -29,13 +27,11 @@ const App = () => {
       number: newNumber,
     };
 
-    axios
-      .post('http://localhost:3001/persons', personObject)
-      .then((response) => {
-        setPersons([...persons, response.data]);
-        setNewName('');
-        setNewNumber('');
-      });
+    personsService.create(personObject).then((returnedPerson) => {
+      setPersons([...persons, returnedPerson]);
+      setNewName('');
+      setNewNumber('');
+    });
   };
 
   const handleNameChange = (event) => {
