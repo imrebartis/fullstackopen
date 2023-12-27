@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import SearchFilter from "./components/SearchFilter";
-import PersonForm from "./components/PersonForm";
-import Persons from "./components/Persons";
-import personsService from "./services/persons";
+import { useState, useEffect } from 'react';
+import SearchFilter from './components/SearchFilter';
+import PersonForm from './components/PersonForm';
+import Persons from './components/Persons';
+import personsService from './services/persons';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -11,7 +11,9 @@ const App = () => {
   const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
-    personsService.getAll().then((initialPersons) => setPersons(initialPersons));
+    personsService
+      .getAll()
+      .then((initialPersons) => setPersons(initialPersons));
   }, []);
 
   const addPerson = (event) => {
@@ -32,6 +34,16 @@ const App = () => {
       setNewName('');
       setNewNumber('');
     });
+  };
+
+  const deletePerson = (id) => {
+    const person = persons.find((person) => person.id === id);
+
+    if (window.confirm(`Delete ${person.name}?`)) {
+      personsService.remove(id).then(() => {
+        setPersons(persons.filter((person) => person.id !== id));
+      });
+    }
   };
 
   const handleNameChange = (event) => {
@@ -62,7 +74,11 @@ const App = () => {
         addPerson={addPerson}
       />
       <h3>Numbers</h3>
-      <Persons persons={persons} searchInput={searchInput} />
+      <Persons
+        persons={persons}
+        searchInput={searchInput}
+        deletePerson={deletePerson}
+      />
     </div>
   );
 };
