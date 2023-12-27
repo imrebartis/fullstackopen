@@ -8,8 +8,11 @@ const Persons = ({ persons, searchInput, deletePerson }) => {
   return (
     <div>
       {filterPersons(persons, searchInput).map((person) => (
-        <div key={person.name}>
-          <p>
+        <div
+          key={person.name}
+          style={{ display: 'flex', alignItems: 'center' }}
+        >
+          <p style={{ marginRight: '8px' }}>
             <span>{person.name}</span>
             <span> </span>
             <span>{person.number}</span>

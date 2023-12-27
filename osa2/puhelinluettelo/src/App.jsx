@@ -16,10 +16,33 @@ const App = () => {
       .then((initialPersons) => setPersons(initialPersons));
   }, []);
 
+  const updatePerson = (id, personObject) => {
+    personsService.update(id, personObject).then((returnedPerson) => {
+      setPersons(
+        persons.map((person) => (person.id !== id ? person : returnedPerson))
+      );
+    });
+  };
+
   const addPerson = (event) => {
     event.preventDefault();
 
-    if (persons.some((person) => person.name === newName)) {
+    const existingPerson = persons.find((person) => person.name === newName);
+
+    if (existingPerson) {
+      if (existingPerson.number !== newNumber) {
+        if (
+          window.confirm(
+            `${newName} is already added to phonebook, replace the old number with a new one?`
+          )
+        ) {
+          updatePerson(existingPerson.id, {
+            ...existingPerson,
+            number: newNumber,
+          });
+          return;
+        }
+      }
       alert(`${newName} is already added to phonebook`);
       return;
     }
