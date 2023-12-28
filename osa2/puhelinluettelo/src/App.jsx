@@ -1,9 +1,12 @@
 import { useState, useEffect } from 'react';
-import SearchFilter from './components/SearchFilter';
+
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
-import personsService from './services/persons';
+import SearchFilter from './components/SearchFilter';
 import Notification from './components/Notification';
+
+import personsService from './services/persons';
+
 import './index.css';
 
 const App = () => {
@@ -12,6 +15,7 @@ const App = () => {
   const [newNumber, setNewNumber] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     personsService
@@ -19,12 +23,35 @@ const App = () => {
       .then((initialPersons) => setPersons(initialPersons));
   }, []);
 
-  const updatePerson = (id, personObject) => {
-    personsService.update(id, personObject).then((returnedPerson) => {
-      setPersons(
-        persons.map((person) => (person.id !== id ? person : returnedPerson))
-      );
-    });
+  const removePersonById = (id) => {
+    setPersons(persons.filter((person) => person.id !== id));
+  };
+
+  const handlePersonError = (person, removePerson = false) => {
+    setErrorMessage(
+      `Information of ${person.name} has already been removed from server`
+    );
+    if (removePerson) {
+      removePersonById(person.id);
+    }
+    setTimeout(() => {
+      setErrorMessage(null);
+    }, 5000);
+  };
+
+  const updatePerson = (id, changedPerson) => {
+    personsService
+      .update(id, changedPerson)
+      .then((returnedPerson) => {
+        setPersons(
+          persons.map((person) => (person.id !== id ? person : returnedPerson))
+        );
+      })
+      .catch((error) => {
+        console.log(error);
+        handlePersonError(changedPerson);
+        removePersonById(id);
+      });
   };
 
   const addPerson = (event) => {
@@ -70,9 +97,15 @@ const App = () => {
     const person = persons.find((person) => person.id === id);
 
     if (window.confirm(`Delete ${person.name}?`)) {
-      personsService.remove(id).then(() => {
-        setPersons(persons.filter((person) => person.id !== id));
-      });
+      personsService
+        .remove(id)
+        .then(() => {
+          removePersonById(id);
+        })
+        .catch((error) => {
+          console.log(error);
+          handlePersonError(person, true);
+        });
     }
   };
 
@@ -91,7 +124,10 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={successMessage} />
+      <Notification
+        successMessage={successMessage}
+        errorMessage={errorMessage}
+      />
       <SearchFilter
         searchInput={searchInput}
         handleSearchInputChange={handleSearchInputChange}
