@@ -14,7 +14,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const debouncedSearchInputChange = debounce(setSearchInput, 100);
+  const debouncedSearchInputChange = debounce(setSearchInput, 80);
 
   const handleSearchInputChange = (event) => {
     debouncedSearchInputChange(event.target.value);
