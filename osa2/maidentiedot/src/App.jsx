@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import debounce from 'lodash.debounce';
 
 import countriesService from './services/countries';
@@ -7,6 +7,13 @@ import SearchLabel from './components/SearchLabel';
 import SearchFilter from './components/SearchFilter';
 import Countries from './components/Countries';
 import LoadingIndicator from './components/LoadingIndicator';
+import ErrorMessage from './components/ErrorMessage';
+
+const filterCountries = (countries, searchInput) => {
+  return countries.filter((country) =>
+    country.name.common.toLowerCase().includes(searchInput.toLowerCase())
+  );
+};
 
 const App = () => {
   const [countries, setCountries] = useState([]);
@@ -14,29 +21,35 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const debouncedSearchInputChange = debounce(setSearchInput, 80);
+  const debouncedSearchInputChange = useCallback(
+    debounce((value) => setSearchInput(value), 80),
+    []
+  );
 
   const handleSearchInputChange = (event) => {
     debouncedSearchInputChange(event.target.value);
   };
 
   useEffect(() => {
-    countriesService
-      .getAll()
-      .then((initialCountries) => {
+    const fetchCountries = async () => {
+      try {
+        const initialCountries = await countriesService.getAll();
         setCountries(initialCountries);
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        setErrorMessage('Failed to fetch countries');
+      } catch (error) {
+        setErrorMessage('countries');
         console.error(error);
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+    fetchCountries();
   }, []);
 
   if (isLoading) {
     return <LoadingIndicator />;
   }
+
+  const filteredCountries = filterCountries(countries, searchInput);
 
   return (
     <>
@@ -47,10 +60,8 @@ const App = () => {
           handleSearchInputChange={handleSearchInputChange}
         />
       </div>
-      {errorMessage && <p>{errorMessage}</p>}
-      {searchInput && (
-        <Countries countries={countries} searchInput={searchInput} />
-      )}
+      {errorMessage && <ErrorMessage message={errorMessage} />}
+      {searchInput && <Countries filteredCountries={filteredCountries} />}
     </>
   );
 };

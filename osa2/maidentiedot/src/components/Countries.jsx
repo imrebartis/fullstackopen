@@ -1,49 +1,35 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Country from './Country';
+import CountryList from './CountryList';
 
-const Countries = ({ countries, searchInput }) => {
+const Countries = ({ filteredCountries }) => {
   const [country, setCountry] = useState(null);
 
-  const filterCountries = (countries, searchInput) => {
-    return countries.filter((country) =>
-      country.name.common.toLowerCase().includes(searchInput.toLowerCase())
-    );
-  };
-
-  const filteredCountries = filterCountries(countries, searchInput);
-
-  const handleOnClick = (event) => {
-    const countryName = event.target.previousSibling.textContent;
-    const selectedCountry = countries.find(
-      (c) => c.name.common === countryName
-    );
+  const handleOnClick = (selectedCountry) => {
     setCountry(selectedCountry);
   };
 
+  const filteredCountriesLength = useMemo(() => filteredCountries.length, [filteredCountries]);
+
   useEffect(() => {
-    if (filteredCountries.length === 1) {
+    if (filteredCountriesLength === 1) {
       setCountry(filteredCountries[0]);
     }
-  }, [filteredCountries]);
+  }, [filteredCountriesLength]);
 
-  if (filteredCountries.length > 10) {
+  if (filteredCountriesLength > 10) {
     return <p>Too many matches, specify another filter</p>;
+  }
+
+  if (filteredCountriesLength === 0) {
+    return <p>No countries found</p>
   }
 
   if (country) {
     return <Country country={country} />;
   }
 
-  return (
-    <div>
-      {filteredCountries.map((country) => (
-        <p key={country.name.common}>
-          <span>{country.name.common}</span>
-          <button onClick={handleOnClick}>show</button>
-        </p>
-      ))}
-    </div>
-  );
+  return <CountryList countries={filteredCountries} handleOnClick={handleOnClick} />;
 };
 
 export default Countries;
