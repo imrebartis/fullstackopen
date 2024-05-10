@@ -39,7 +39,7 @@ const listWithSeveralBlogs = [
   {
     _id: '5a422b3a1b54a676234d17f10',
     title: 'Canonical string reduction 2',
-    author: 'Edsger W. Dijkstra the 2nd',
+    author: 'Edsger W. Dijkstra',
     url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
     likes: 12,
     __v: 0
