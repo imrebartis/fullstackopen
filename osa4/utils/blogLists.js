@@ -70,8 +70,23 @@ const listWithSeveralBlogs = [
   }
 ]
 
+const newBlog = {
+  title: 'Test Blog',
+  author: 'Test Author',
+  url: 'http://www.testblog.com',
+  likes: 0
+}
+
+const newBlogWithNoLikes = {
+  title: 'Test Blog',
+  author: 'Test Author',
+  url: 'http://www.testblog.com'
+}
+
 module.exports = {
   listWithNoBlogs,
   listWithOneBlog,
-  listWithSeveralBlogs
+  listWithSeveralBlogs,
+  newBlog,
+  newBlogWithNoLikes
 }
