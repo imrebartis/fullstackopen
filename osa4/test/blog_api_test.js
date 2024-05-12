@@ -1,4 +1,4 @@
-const { test, after, beforeEach } = require('node:test')
+const { test, after, beforeEach, describe } = require('node:test')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -8,6 +8,13 @@ const api = supertest(app)
 const helper = require('./test_helper')
 
 const Blog = require('../models/blog')
+
+const newBlog = {
+  title: 'Test Blog',
+  author: 'Test Author',
+  url: 'http://www.testblog.com',
+  likes: 0
+}
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -28,18 +35,37 @@ test('there are two blogs', async () => {
   assert.strictEqual(response.body.length, 2)
 })
 
-test.only('MongoDB assigns an id property when a blog is added', async () => {
-  const newBlog = {
-    title: 'Test Blog',
-    author: 'Test Author',
-    url: 'http://www.testblog.com',
-    likes: 0
-  }
+test('MongoDB assigns an id property when a blog is added', async () => {
 
   const returnedObject = await api.post('/api/blogs').send(newBlog)
 
   assert.ok(returnedObject.body.hasOwnProperty('id'), 'The object does not have an id property')
   assert.strictEqual(typeof returnedObject.body.id, 'string', 'the id is not a string')
+})
+
+describe('post blog', () => {
+
+  test('the number of blogs increases by one after a new blog is posted', async () => {
+    const blogsAtStart = await api.get('/api/blogs')
+    const startLength = blogsAtStart.body.length
+
+    await api.post('/api/blogs').send(newBlog)
+
+    const blogsAtEnd = await api.get('/api/blogs')
+    const endLength = blogsAtEnd.body.length
+
+    assert.strictEqual(endLength, startLength + 1)
+  })
+
+  test('the posted blog\'s content is correct', async () => {
+
+    const returnedObject = await api.post('/api/blogs').send(newBlog)
+
+    assert.strictEqual(returnedObject.body.title, newBlog.title)
+    assert.strictEqual(returnedObject.body.author, newBlog.author)
+    assert.strictEqual(returnedObject.body.url, newBlog.url)
+    assert.strictEqual(returnedObject.body.likes, newBlog.likes)
+  })
 })
 
 after(async () => {
