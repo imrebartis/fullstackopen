@@ -83,6 +83,25 @@ describe('post blog', () => {
   })
 })
 
+describe('delete blog', () => {
+  test('if blog id is correct, the blog is deleted', async () => {
+
+    const createdBlog = await api.post('/api/blogs').send(newBlog)
+
+    const deleteResponse = await api.delete(`/api/blogs/${createdBlog.body.id}`)
+    assert.strictEqual(deleteResponse.status, 204)
+
+    const response = await api.get('/api/blogs')
+    const ids = response.body.map(blog => blog.id)
+    assert.ok(!ids.includes(createdBlog.body.id))
+  })
+
+  test('if blog id is incorrect, the response is a 404 error', async () => {
+    const deleteResponse = await api.delete('/api/blogs/1234567890')
+    assert.strictEqual(deleteResponse.status, 404)
+  })
+})
+
 after(async () => {
   await mongoose.connection.close()
 })

@@ -45,4 +45,22 @@ blogsRouter.post('/', async (request, response, next) => {
   }
 })
 
+blogsRouter.delete('/:id', async (request, response, next) => {
+  try {
+    const blog = await Blog.findById(request.params.id)
+    if (blog) {
+      await Blog.deleteOne({ _id: blog._id })
+      response.status(204).end()
+    } else {
+      response.status(404).end()
+    }
+  } catch (error) {
+    if (error.name === 'CastError') {
+      response.status(404).send({ error: 'incorrect id' })
+    } else {
+      next(error)
+    }
+  }
+})
+
 module.exports = blogsRouter
