@@ -31,6 +31,10 @@ blogsRouter.post('/', async (request, response, next) => {
     body.likes = 0
   }
 
+  if (!body.title || !body.url) {
+    return next({ name: 'MissingFieldsError', message: 'title and url are required fields' })
+  }
+
   const blog = new Blog(body)
 
   try {

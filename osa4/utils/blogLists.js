@@ -83,10 +83,24 @@ const newBlogWithNoLikes = {
   url: 'http://www.testblog.com'
 }
 
+const blogWithNoTitle = {
+  author: 'Test Author',
+  url: 'http://www.testblog.com',
+  likes: 0
+}
+
+const blogWithNoUrl = {
+  title: 'Test Blog',
+  author: 'Test Author',
+  likes: 0
+}
+
 module.exports = {
   listWithNoBlogs,
   listWithOneBlog,
   listWithSeveralBlogs,
   newBlog,
-  newBlogWithNoLikes
+  newBlogWithNoLikes,
+  blogWithNoTitle,
+  blogWithNoUrl
 }

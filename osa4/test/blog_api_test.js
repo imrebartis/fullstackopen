@@ -9,7 +9,7 @@ const helper = require('./test_helper')
 
 const Blog = require('../models/blog')
 
-const { newBlog, newBlogWithNoLikes } = require('../utils/blogLists')
+const { newBlog, newBlogWithNoLikes, blogWithNoTitle, blogWithNoUrl } = require('../utils/blogLists')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -66,6 +66,20 @@ describe('post blog', () => {
     const returnedObject = await api.post('/api/blogs').send(newBlogWithNoLikes)
 
     assert.strictEqual(returnedObject.body.likes, 0)
+  })
+
+  test('blogs with no title cannot be posted', async () => {
+
+    const returnedObject = await api.post('/api/blogs').send(blogWithNoTitle)
+
+    assert.strictEqual(returnedObject.status, 400)
+  })
+
+  test('blogs with no url cannot be posted', async () => {
+
+    const returnedObject = await api.post('/api/blogs').send(blogWithNoUrl)
+
+    assert.strictEqual(returnedObject.status, 400)
   })
 })
 
