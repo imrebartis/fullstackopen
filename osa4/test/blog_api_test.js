@@ -9,7 +9,7 @@ const helper = require('./test_helper')
 
 const Blog = require('../models/blog')
 
-const { newBlog, newBlogWithNoLikes, blogWithNoTitle, blogWithNoUrl } = require('../utils/blogLists')
+const { newBlog, newBlogWithNoLikes, blogWithNoTitle, blogWithNoUrl, blogWithLikesThatAreNotNumbers } = require('../utils/blogLists')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -68,6 +68,12 @@ describe('post blog', () => {
     assert.strictEqual(returnedObject.body.likes, 0)
   })
 
+  test('a blog with likes that are not numbers cannot be posted', async () => {
+    const returnedObject = await api.post('/api/blogs').send(blogWithLikesThatAreNotNumbers)
+
+    assert.strictEqual(returnedObject.status, 400)
+  })
+
   test('blogs with no title cannot be posted', async () => {
 
     const returnedObject = await api.post('/api/blogs').send(blogWithNoTitle)
@@ -99,6 +105,32 @@ describe('delete blog', () => {
   test('if blog id is incorrect, the response is a 404 error', async () => {
     const deleteResponse = await api.delete('/api/blogs/1234567890')
     assert.strictEqual(deleteResponse.status, 404)
+  })
+})
+
+describe('update blog', () => {
+  test('if blog id is correct, the blog is updated', async () => {
+
+    const createdBlog = await api.post('/api/blogs').send(newBlog)
+
+    const updatedBlog = { ...newBlog, likes: 1 }
+
+    await api.patch(`/api/blogs/${createdBlog.body.id}`).expect(200).send(updatedBlog)
+
+    const response = await api.get(`/api/blogs/${createdBlog.body.id}`).send(newBlog)
+    assert.strictEqual(response.body.likes, updatedBlog.likes)
+  })
+
+  test('if likes is not a number, the response is a 400 error', async () => {
+    const createdBlog = await api.post('/api/blogs').send(newBlog)
+
+    const updatedBlog = { ...newBlog, likes: '2' }
+    await api.patch(`/api/blogs/${createdBlog.body.id}`).send(updatedBlog).expect(400)
+  })
+
+  test('if blog id is incorrect, the response is a 404 error', async () => {
+    const updatedBlog = { ...newBlog, likes: 2 }
+    await api.patch('/api/blogs/60d6c47e3cf8b1984ec2f3de').send(updatedBlog).expect(404)
   })
 })
 

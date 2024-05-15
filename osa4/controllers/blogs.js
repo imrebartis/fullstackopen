@@ -27,6 +27,10 @@ blogsRouter.get('/:id', async (request, response, next) => {
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
+  if (body.likes !== undefined && typeof body.likes !== 'number') {
+    return next({ name: 'LikesNotANumberError', message: 'likes must be a number' })
+  }
+
   if (!body.likes) {
     body.likes = 0
   }
@@ -60,6 +64,28 @@ blogsRouter.delete('/:id', async (request, response, next) => {
     } else {
       next(error)
     }
+  }
+})
+
+blogsRouter.patch('/:id', async (request, response, next) => {
+  const { likes } = request.body
+
+  if (likes === undefined || typeof likes !== 'number') {
+    return next({ name: 'LikesNotANumberError', message: 'likes must be a number' })
+  }
+
+  try {
+    const blog = await Blog.findOne({ _id: request.params.id })
+
+    if (!blog) {
+      return response.status(404).send({ error: 'blog not found' })
+    }
+
+    blog.likes = likes
+    const updatedBlog = await blog.save()
+    response.status(200).json(updatedBlog)
+  } catch (error) {
+    next(error)
   }
 })
 

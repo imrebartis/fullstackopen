@@ -95,6 +95,12 @@ const blogWithNoUrl = {
   likes: 0
 }
 
+const blogWithLikesThatAreNotNumbers = {
+  title: 'Test Blog',
+  author: 'Test Author',
+  likes: 'not a number'
+}
+
 module.exports = {
   listWithNoBlogs,
   listWithOneBlog,
@@ -102,5 +108,6 @@ module.exports = {
   newBlog,
   newBlogWithNoLikes,
   blogWithNoTitle,
-  blogWithNoUrl
+  blogWithNoUrl,
+  blogWithLikesThatAreNotNumbers
 }
