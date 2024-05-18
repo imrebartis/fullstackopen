@@ -36,7 +36,7 @@ blogsRouter.post('/', async (request, response, next) => {
   }
 
   if (!body.title || !body.url) {
-    return next({ name: 'MissingFieldsError', message: 'title and url are required fields' })
+    return next({ name: 'MissingBlogFieldsError', message: 'title and url are required fields' })
   }
 
   const blog = new Blog(body)
