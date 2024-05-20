@@ -1,10 +1,12 @@
 const blogsRouter = require('express').Router()
 
 const Blog = require('../models/blog')
+const User = require('../models/user')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
-    const blogs = await Blog.find({})
+    const blogs = await Blog
+      .find({}).sort({ createdAt: 1 }).populate('user', { username: 1, name: 1, id: 1 })
     response.json(blogs)
   } catch (error) {
     next(error)
@@ -27,6 +29,8 @@ blogsRouter.get('/:id', async (request, response, next) => {
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
+  const user = await User.findOne().sort({ createdAt: 1 })
+
   if (body.likes !== undefined && typeof body.likes !== 'number') {
     return next({ name: 'LikesNotANumberError', message: 'likes must be a number' })
   }
@@ -39,10 +43,23 @@ blogsRouter.post('/', async (request, response, next) => {
     return next({ name: 'MissingBlogFieldsError', message: 'title and url are required fields' })
   }
 
-  const blog = new Blog(body)
+  if (!user) {
+    return response.status(400).json({ error: 'user not found' })
+  }
+
+  const blog = new Blog({
+    title: body.title,
+    author: body.author,
+    url: body.url,
+    likes: body.likes,
+    user: user._id
+  })
 
   try {
     const savedBlog = await blog.save()
+    blog.user = user.blogs.concat(savedBlog._id)
+    await user.save()
+
     response.status(201).json(savedBlog)
   } catch (error) {
     next(error)
