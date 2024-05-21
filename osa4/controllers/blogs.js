@@ -1,7 +1,16 @@
+const jwt = require('jsonwebtoken')
 const blogsRouter = require('express').Router()
 
 const Blog = require('../models/blog')
 const User = require('../models/user')
+
+const getTokenFrom = request => {
+  const authorization = request.get('authorization')
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace('Bearer ', '')
+  }
+  return null
+}
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -29,7 +38,24 @@ blogsRouter.get('/:id', async (request, response, next) => {
 blogsRouter.post('/', async (request, response, next) => {
   const body = request.body
 
-  const user = await User.findOne().sort({ createdAt: 1 })
+  let decodedToken
+
+  try {
+    decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET)
+  } catch (error) {
+    if (error instanceof jwt.JsonWebTokenError) {
+      if (error.message === 'jwt expired') {
+        return response.status(401).json({ error: 'token expired' })
+      }
+      return next({ name: 'JsonWebTokenError', message: 'invalid token' })
+    }
+    return next(error)
+  }
+
+  if (!decodedToken.id) {
+    return response.status(401).json({ error: 'token invalid' })
+  }
+  const user = await User.findById(decodedToken.id)
 
   if (body.likes !== undefined && typeof body.likes !== 'number') {
     return next({ name: 'LikesNotANumberError', message: 'likes must be a number' })
@@ -57,7 +83,7 @@ blogsRouter.post('/', async (request, response, next) => {
 
   try {
     const savedBlog = await blog.save()
-    blog.user = user.blogs.concat(savedBlog._id)
+    user.blogs = user.blogs.concat(savedBlog._id)
     await user.save()
 
     response.status(201).json(savedBlog)

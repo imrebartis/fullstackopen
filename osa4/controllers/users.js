@@ -1,28 +1,12 @@
 const bcryptjs = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 const usersRouter = require('express').Router()
 const User = require('../models/user')
-const Blog = require('../models/blog')
 
 usersRouter.get('/', async (request, response) => {
-  const users = await User.find({})
-  const blogs = await Blog.find({})
-
-  const blogsFormatted = blogs.map(blog => ({
-    url: blog.url,
-    title: blog.title,
-    author: blog.author,
-    id: blog._id
-  }))
-
-  const usersWithAllBlogs = users.map(user => {
-    const userObject = user.toJSON()
-    return {
-      ...userObject,
-      blogs: blogsFormatted
-    }
-  })
-
-  response.json(usersWithAllBlogs)
+  const users = await User
+    .find({}).populate('blogs', { url: 1, title: 1, author: 1, id: 1 })
+  response.json(users)
 })
 
 usersRouter.post('/', async (request, response, next) => {
