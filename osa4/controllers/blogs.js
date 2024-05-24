@@ -87,12 +87,22 @@ blogsRouter.post('/', async (request, response, next) => {
 blogsRouter.delete('/:id', async (request, response, next) => {
   try {
     const blog = await Blog.findById(request.params.id)
-    if (blog) {
-      await Blog.deleteOne({ _id: blog._id })
-      response.status(204).end()
-    } else {
-      response.status(404).end()
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+
+    const user = await User.findById(decodedToken.id)
+
+    if (!blog) {
+      const error = new Error('incorrect id')
+      error.name = 'CastError'
+      throw error
     }
+
+    if (blog.user.toString() !== user._id.toString()) {
+      return response.status(403).json({ error: 'unauthorized: You can only delete blogs that you have posted' })
+    }
+
+    await Blog.deleteOne({ _id: blog._id })
+    response.status(204).end()
   } catch (error) {
     if (error.name === 'CastError') {
       response.status(404).send({ error: 'incorrect id' })
