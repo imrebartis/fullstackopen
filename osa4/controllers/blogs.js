@@ -3,6 +3,7 @@ const blogsRouter = require('express').Router()
 
 const Blog = require('../models/blog')
 const User = require('../models/user')
+const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -27,27 +28,9 @@ blogsRouter.get('/:id', async (request, response, next) => {
   }
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response, next) => {
   const body = request.body
-
-  let decodedToken
-
-  try {
-    decodedToken = jwt.verify(request.token, process.env.SECRET)
-  } catch (error) {
-    if (error instanceof jwt.JsonWebTokenError) {
-      if (error.message === 'jwt expired') {
-        return response.status(401).json({ error: 'token expired' })
-      }
-      return next({ name: 'JsonWebTokenError', message: 'invalid token' })
-    }
-    return next(error)
-  }
-
-  if (!decodedToken.id) {
-    return response.status(401).json({ error: 'token invalid' })
-  }
-  const user = await User.findById(decodedToken.id)
+  const user = request.user
 
   if (body.likes !== undefined && typeof body.likes !== 'number') {
     return next({ name: 'LikesNotANumberError', message: 'likes must be a number' })
@@ -59,10 +42,6 @@ blogsRouter.post('/', async (request, response, next) => {
 
   if (!body.title || !body.url) {
     return next({ name: 'MissingBlogFieldsError', message: 'title and url are required fields' })
-  }
-
-  if (!user) {
-    return response.status(400).json({ error: 'user not found' })
   }
 
   const blog = new Blog({
@@ -84,12 +63,10 @@ blogsRouter.post('/', async (request, response, next) => {
   }
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, next) => {
   try {
     const blog = await Blog.findById(request.params.id)
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-
-    const user = await User.findById(decodedToken.id)
+    const user = request.user
 
     if (!blog) {
       const error = new Error('incorrect id')
