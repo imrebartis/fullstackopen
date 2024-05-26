@@ -1,4 +1,5 @@
-const { test, after, beforeEach, describe } = require('node:test')
+const { test, after, before, beforeEach, describe } = require('node:test')
+const request = require('supertest')
 const assert = require('node:assert')
 const mongoose = require('mongoose')
 const supertest = require('supertest')
@@ -33,9 +34,54 @@ test('there are two blogs', async () => {
 })
 
 describe('post blog', () => {
+  let agent
+  let token
+
+  before(async () => {
+    agent = request.agent(app)
+
+    await User.deleteOne({ username: 'newuser' })
+
+    const passwordHash = await bcryptjs.hash('newpassword', 10)
+    const user = new User({ username: 'newuser', passwordHash })
+    await user.save()
+
+    const loginResponse = await agent
+      .post('/api/login')
+      .send({ username: 'newuser', password: 'newpassword' })
+
+    assert.strictEqual(loginResponse.status, 200)
+
+    token = loginResponse.body.token
+  })
+
+  test('should create a new blog when authenticated', async () => {
+    const response = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
+
+    assert.strictEqual(response.status, 201)
+
+    for (const [key, value] of Object.entries(newBlog)) {
+      assert.strictEqual(response.body[key], value)
+    }
+  })
+
+  test('should return 401 Unauthorized if token is missing', async () => {
+    const response = await agent
+      .post('/api/blogs')
+      .send(newBlog)
+
+    assert.strictEqual(response.status, 401)
+  })
+
   test('MongoDB assigns an id property when a blog is added', async () => {
 
-    const returnedObject = await api.post('/api/blogs').send(newBlog)
+    const returnedObject = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
 
     assert.ok(returnedObject.body.hasOwnProperty('id'), 'The object does not have an id property')
     assert.strictEqual(typeof returnedObject.body.id, 'string', 'the id is not a string')
@@ -45,7 +91,12 @@ describe('post blog', () => {
     const blogsAtStart = await api.get('/api/blogs')
     const startLength = blogsAtStart.body.length
 
-    await api.post('/api/blogs').send(newBlog)
+    const response = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
+
+    assert.strictEqual(response.status, 201)
 
     const blogsAtEnd = await api.get('/api/blogs')
     const endLength = blogsAtEnd.body.length
@@ -55,7 +106,10 @@ describe('post blog', () => {
 
   test('the posted blog\'s content is correct', async () => {
 
-    const returnedObject = await api.post('/api/blogs').send(newBlog)
+    const returnedObject = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
 
     assert.strictEqual(returnedObject.body.title, newBlog.title)
     assert.strictEqual(returnedObject.body.author, newBlog.author)
@@ -65,38 +119,90 @@ describe('post blog', () => {
 
   test('a blog with no likes set has 0 likes', async () => {
 
-    const returnedObject = await api.post('/api/blogs').send(newBlogWithNoLikes)
+    const returnedObject = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlogWithNoLikes)
 
     assert.strictEqual(returnedObject.body.likes, 0)
   })
 
   test('a blog with likes that are not numbers cannot be posted', async () => {
-    const returnedObject = await api.post('/api/blogs').send(blogWithLikesThatAreNotNumbers)
+    const returnedObject = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blogWithLikesThatAreNotNumbers)
 
+    assert.strictEqual(returnedObject.body.error, 'likes must be a number')
     assert.strictEqual(returnedObject.status, 400)
   })
 
   test('blogs with no title cannot be posted', async () => {
 
-    const returnedObject = await api.post('/api/blogs').send(blogWithNoTitle)
+    const returnedObject = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blogWithNoTitle)
 
+    assert.strictEqual(returnedObject.body.error, 'title and url are required fields')
     assert.strictEqual(returnedObject.status, 400)
   })
 
   test('blogs with no url cannot be posted', async () => {
 
-    const returnedObject = await api.post('/api/blogs').send(blogWithNoUrl)
+    const returnedObject = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(blogWithNoUrl)
 
+    assert.strictEqual(returnedObject.body.error, 'title and url are required fields')
     assert.strictEqual(returnedObject.status, 400)
   })
 })
 
 describe('delete blog', () => {
+  let agent
+  let token
+
+  before(async () => {
+    agent = request.agent(app)
+
+    await User.deleteOne({ username: 'newuser' })
+
+    const passwordHash = await bcryptjs.hash('newpassword', 10)
+    const user = new User({ username: 'newuser', passwordHash })
+    await user.save()
+
+    let loginResponse = await agent
+      .post('/api/login')
+      .send({ username: 'newuser', password: 'newpassword' })
+
+    if (loginResponse.status === 401) {
+      const passwordHash = await bcryptjs.hash('newpassword', 10)
+      const user = new User({ username: 'newuser', passwordHash })
+      await user.save()
+    }
+
+    loginResponse = await agent
+      .post('/api/login')
+      .send({ username: 'newuser', password: 'newpassword' })
+
+    assert.strictEqual(loginResponse.status, 200)
+
+    token = loginResponse.body.token
+  })
+
   test('if blog id is correct, the blog is deleted', async () => {
 
-    const createdBlog = await api.post('/api/blogs').send(newBlog)
+    const createdBlog = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
 
-    const deleteResponse = await api.delete(`/api/blogs/${createdBlog.body.id}`)
+    const deleteResponse = await agent
+      .delete(`/api/blogs/${createdBlog.body.id}`)
+      .set('Authorization', `Bearer ${token}`)
+
     assert.strictEqual(deleteResponse.status, 204)
 
     const response = await api.get('/api/blogs')
@@ -105,15 +211,52 @@ describe('delete blog', () => {
   })
 
   test('if blog id is incorrect, the response is a 404 error', async () => {
-    const deleteResponse = await api.delete('/api/blogs/1234567890')
+    const deleteResponse = await agent
+      .delete('/api/blogs/1234567890')
+      .set('Authorization', `Bearer ${token}`)
+
     assert.strictEqual(deleteResponse.status, 404)
   })
 })
 
 describe('update blog', () => {
+  let agent
+  let token
+
+  before(async () => {
+    agent = request.agent(app)
+
+    await User.deleteOne({ username: 'newuser' })
+
+    const passwordHash = await bcryptjs.hash('newpassword', 10)
+    const user = new User({ username: 'newuser', passwordHash })
+    await user.save()
+
+    let loginResponse = await agent
+      .post('/api/login')
+      .send({ username: 'newuser', password: 'newpassword' })
+
+    if (loginResponse.status === 401) {
+      const passwordHash = await bcryptjs.hash('newpassword', 10)
+      const user = new User({ username: 'newuser', passwordHash })
+      await user.save()
+    }
+
+    loginResponse = await agent
+      .post('/api/login')
+      .send({ username: 'newuser', password: 'newpassword' })
+
+    assert.strictEqual(loginResponse.status, 200)
+
+    token = loginResponse.body.token
+  })
+
   test('if blog id is correct, the blog is updated', async () => {
 
-    const createdBlog = await api.post('/api/blogs').send(newBlog)
+    const createdBlog = await agent
+      .post('/api/blogs')
+      .set('Authorization', `Bearer ${token}`)
+      .send(newBlog)
 
     const updatedBlog = { ...newBlog, likes: 1 }
 
