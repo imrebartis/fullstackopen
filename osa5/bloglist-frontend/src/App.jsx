@@ -10,6 +10,7 @@ const App = () => {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -24,6 +25,16 @@ const App = () => {
     fetchBlogs();
   }, []);
 
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      blogService.setToken(user.token);
+    }
+    setIsLoading(false);
+  }, []);
+
   const handleLogin = async (event) => {
     event.preventDefault();
 
@@ -32,6 +43,7 @@ const App = () => {
         username,
         password,
       });
+      window.localStorage.setItem("loggedBlogappUser", JSON.stringify(user));
       blogService.setToken(user.token);
       setUser(user);
       setUsername("");
@@ -43,6 +55,18 @@ const App = () => {
       }, 5000);
     }
   };
+
+  const handleLogout = async (event) => {
+    event.preventDefault();
+
+    window.localStorage.removeItem("loggedBlogappUser");
+    blogService.setToken(null);
+    setUser(null);
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   if (user === null) {
     return (
@@ -77,7 +101,12 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <p>{user.name} logged in</p>
+      <div style={{ display: "flex", alignItems: "center" }}>
+        <p>{user.name} logged in</p>
+        <button onClick={handleLogout} style={{ marginLeft: "8px" }}>
+          log out
+        </button>
+      </div>
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
       ))}
