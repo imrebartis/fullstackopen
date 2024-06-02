@@ -3,9 +3,19 @@ const baseUrl = "/api/blogs";
 
 let token = null;
 
+const handleTokenExpiration = () => {
+  window.localStorage.removeItem("loggedBlogappUser");
+  token = null;
+  setTimeout(() => window.location.reload(), 3000);
+};
+
 const setToken = (newToken) => {
   token = `Bearer ${newToken}`;
 };
+
+const getConfig = () => ({
+  headers: { Authorization: token },
+});
 
 const getAll = async () => {
   const response = await axios.get(baseUrl);
@@ -13,17 +23,28 @@ const getAll = async () => {
 };
 
 const create = async (newObject) => {
-  const config = {
-    headers: { Authorization: token },
-  };
-
-  const response = await axios.post(baseUrl, newObject, config);
-  return response.data;
+  try {
+    const response = await axios.post(baseUrl, newObject, getConfig());
+    return response.data;
+  } catch (error) {
+    console.error(error.response.data);
+    if (error.response && error.response.status === 401) {
+      handleTokenExpiration();
+    }
+    throw error;
+  }
 };
 
-const update = (id, newObject) => {
-  const request = axios.put(`${baseUrl}/${id}`, newObject);
-  return request.then((response) => response.data);
+const update = async (id, newObject) => {
+  try {
+    const response = await axios.put(`${baseUrl}/${id}`, newObject, getConfig());
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      handleTokenExpiration();
+    }
+    throw error;
+  }
 };
 
 export default {

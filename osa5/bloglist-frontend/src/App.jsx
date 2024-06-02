@@ -3,6 +3,8 @@ import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
 import Notification from "./components/Notification";
+import BlogForm from "./components/BlogForm";
+import LoginForm from "./components/LoginForm";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
@@ -11,6 +13,9 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [newTitle, setNewTitle] = useState("");
+  const [newAuthor, setNewAuthor] = useState("");
+  const [newUrl, setNewUrl] = useState("");
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -56,12 +61,72 @@ const App = () => {
     }
   };
 
-  const handleLogout = async (event) => {
+  const handleLogout = (event) => {
     event.preventDefault();
 
     window.localStorage.removeItem("loggedBlogappUser");
     blogService.setToken(null);
     setUser(null);
+  };
+
+  const handleTitleChange = (event) => {
+    setNewTitle(event.target.value);
+  };
+
+  const handleAuthorChange = (event) => {
+    setNewAuthor(event.target.value);
+  };
+
+  const handleUrlChange = (event) => {
+    setNewUrl(event.target.value);
+  };
+
+  const addBlog = (event) => {
+    event.preventDefault();
+
+    if (!newTitle) {
+      setErrorMessage("Title is required");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      return;
+    }
+
+    if (!newUrl) {
+      setErrorMessage("Url is required");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+      return;
+    }
+
+    const blogObject = {
+      title: newTitle,
+      author: newAuthor,
+      url: newUrl,
+    };
+
+    const createBlog = async (blogObject) => {
+      try {
+        const returnedBlog = await blogService.create(blogObject);
+        setBlogs([...blogs, returnedBlog]);
+        setNewTitle("");
+        setNewAuthor("");
+        setNewUrl("");
+      } catch (error) {
+        console.error("Error creating blog:", error);
+        if (error.response && error.response.status === 401) {
+          setErrorMessage("Your session has expired. Please log in again.");
+        } else {
+          setErrorMessage("Error creating blog");
+        }
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+      }
+    };
+
+    createBlog(blogObject);
   };
 
   if (isLoading) {
@@ -73,27 +138,13 @@ const App = () => {
       <div>
         <h2>Log in to application</h2>
         <Notification message={errorMessage} />
-        <form onSubmit={handleLogin}>
-          <div>
-            username
-            <input
-              type="text"
-              value={username}
-              name="Username"
-              onChange={({ target }) => setUsername(target.value)}
-            />
-          </div>
-          <div>
-            password
-            <input
-              type="password"
-              value={password}
-              name="Password"
-              onChange={({ target }) => setPassword(target.value)}
-            />
-          </div>
-          <button type="submit">login</button>
-        </form>
+        <LoginForm
+          username={username}
+          password={password}
+          setUsername={setUsername}
+          setPassword={setPassword}
+          handleLogin={handleLogin}
+        />
       </div>
     );
   }
@@ -101,12 +152,22 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <Notification message={errorMessage} />
       <div style={{ display: "flex", alignItems: "center" }}>
         <p>{user.name} logged in</p>
         <button onClick={handleLogout} style={{ marginLeft: "8px" }}>
           log out
         </button>
       </div>
+      <BlogForm
+        newTitle={newTitle}
+        newAuthor={newAuthor}
+        newUrl={newUrl}
+        addBlog={addBlog}
+        handleTitleChange={handleTitleChange}
+        handleAuthorChange={handleAuthorChange}
+        handleUrlChange={handleUrlChange}
+      />
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
       ))}
