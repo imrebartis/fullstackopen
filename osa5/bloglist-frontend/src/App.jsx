@@ -6,16 +6,19 @@ import Notification from "./components/Notification";
 import BlogForm from "./components/BlogForm";
 import LoginForm from "./components/LoginForm";
 
+import "./index.css";
+
 const App = () => {
   const [blogs, setBlogs] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [newTitle, setNewTitle] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
   const [newUrl, setNewUrl] = useState("");
+  const [successMessage, setSuccessMessage] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -24,6 +27,10 @@ const App = () => {
         setBlogs(blogs);
       } catch (error) {
         console.error(error);
+        setErrorMessage("Error fetching blogs");
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
       }
     };
 
@@ -33,9 +40,17 @@ const App = () => {
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedBlogappUser");
     if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON);
-      setUser(user);
-      blogService.setToken(user.token);
+      try {
+        const user = JSON.parse(loggedUserJSON);
+        setUser(user);
+        blogService.setToken(user.token);
+      } catch (error) {
+        console.error(error);
+        setErrorMessage("Error fetching user");
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+      }
     }
     setIsLoading(false);
   }, []);
@@ -53,8 +68,12 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
+      setSuccessMessage(`Welcome back, ${user.name}!`);
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
     } catch (exception) {
-      setErrorMessage("wrong credentials");
+      setErrorMessage("Wrong credentials");
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -67,6 +86,10 @@ const App = () => {
     window.localStorage.removeItem("loggedBlogappUser");
     blogService.setToken(null);
     setUser(null);
+    setSuccessMessage("You have been logged out successfully.");
+    setTimeout(() => {
+      setSuccessMessage(null);
+    }, 5000);
   };
 
   const handleTitleChange = (event) => {
@@ -113,6 +136,12 @@ const App = () => {
         setNewTitle("");
         setNewAuthor("");
         setNewUrl("");
+        setSuccessMessage(
+          `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
+        );
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
       } catch (error) {
         console.error("Error creating blog:", error);
         if (error.response && error.response.status === 401) {
@@ -137,7 +166,10 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
-        <Notification message={errorMessage} />
+        <Notification
+          successMessage={successMessage}
+          errorMessage={errorMessage}
+        />
         <LoginForm
           username={username}
           password={password}
@@ -152,7 +184,10 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification message={errorMessage} />
+      <Notification
+        successMessage={successMessage}
+        errorMessage={errorMessage}
+      />
       <div style={{ display: "flex", alignItems: "center" }}>
         <p>{user.name} logged in</p>
         <button onClick={handleLogout} style={{ marginLeft: "8px" }}>

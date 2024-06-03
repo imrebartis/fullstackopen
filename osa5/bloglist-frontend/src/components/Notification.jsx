@@ -1,12 +1,15 @@
-const Notification = ({ message }) => {
-  if (message === null) {
+import Message from "./Message";
+
+const Notification = ({ successMessage, errorMessage }) => {
+  if (!successMessage && !errorMessage) {
     return null;
   }
 
   return (
-    <div className="error" style={{ color: "red" }}>
-      {message}
-    </div>
+    <Message
+      className={successMessage ? "success" : "error"}
+      message={successMessage || errorMessage}
+    />
   );
 };
 
