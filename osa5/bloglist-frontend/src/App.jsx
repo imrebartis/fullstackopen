@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import loginService from "./services/login";
@@ -15,11 +15,10 @@ const App = () => {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [newTitle, setNewTitle] = useState("");
-  const [newAuthor, setNewAuthor] = useState("");
-  const [newUrl, setNewUrl] = useState("");
   const [successMessage, setSuccessMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
+
+  const blogFormRef = useRef();
 
   useEffect(() => {
     const fetchBlogs = async () => {
@@ -74,7 +73,11 @@ const App = () => {
         setSuccessMessage(null);
       }, 5000);
     } catch (exception) {
-      setErrorMessage("Wrong credentials");
+      if (exception.response && exception.response.status === 401) {
+        setErrorMessage("Wrong credentials");
+      } else {
+        setErrorMessage("Could not connect to the server. Please try again later.");
+      }
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -93,50 +96,13 @@ const App = () => {
     }, 5000);
   };
 
-  const handleTitleChange = (event) => {
-    setNewTitle(event.target.value);
-  };
-
-  const handleAuthorChange = (event) => {
-    setNewAuthor(event.target.value);
-  };
-
-  const handleUrlChange = (event) => {
-    setNewUrl(event.target.value);
-  };
-
-  const addBlog = (event) => {
-    event.preventDefault();
-
-    if (!newTitle) {
-      setErrorMessage("Title is required");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
-      return;
-    }
-
-    if (!newUrl) {
-      setErrorMessage("Url is required");
-      setTimeout(() => {
-        setErrorMessage(null);
-      }, 5000);
-      return;
-    }
-
-    const blogObject = {
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl,
-    };
+  const addBlog = (blogObject) => {
+    blogFormRef.current.toggleVisibility();
 
     const createBlog = async (blogObject) => {
       try {
         const returnedBlog = await blogService.create(blogObject);
         setBlogs([...blogs, returnedBlog]);
-        setNewTitle("");
-        setNewAuthor("");
-        setNewUrl("");
         setSuccessMessage(
           `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
         );
@@ -195,16 +161,8 @@ const App = () => {
           log out
         </button>
       </div>
-      <Togglable buttonLabel="new blog">
-        <BlogForm
-          newTitle={newTitle}
-          newAuthor={newAuthor}
-          newUrl={newUrl}
-          addBlog={addBlog}
-          handleTitleChange={handleTitleChange}
-          handleAuthorChange={handleAuthorChange}
-          handleUrlChange={handleUrlChange}
-        />
+      <Togglable buttonLabel="new blog" ref={blogFormRef}>
+        <BlogForm createBlog={addBlog} setErrorMessage={setErrorMessage} />
       </Togglable>
       {blogs.map((blog) => (
         <Blog key={blog.id} blog={blog} />
