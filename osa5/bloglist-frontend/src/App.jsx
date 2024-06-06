@@ -76,7 +76,9 @@ const App = () => {
       if (exception.response && exception.response.status === 401) {
         setErrorMessage("Wrong credentials");
       } else {
-        setErrorMessage("Could not connect to the server. Please try again later.");
+        setErrorMessage(
+          "Could not connect to the server. Please try again later."
+        );
       }
       setTimeout(() => {
         setErrorMessage(null);
@@ -125,6 +127,23 @@ const App = () => {
     createBlog(blogObject);
   };
 
+  const handleLike = async (id) => {
+    const blog = blogs.find((blog) => blog.id === id);
+    const updatedBlog = { ...blog, likes: blog.likes + 1 };
+
+    try {
+      const returnedBlog = await blogService.update(id, updatedBlog);
+      returnedBlog.user = blog.user;
+      setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)));
+    } catch (error) {
+      console.error("Error updating blog:", error);
+      setErrorMessage("Error updating blog");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -165,7 +184,7 @@ const App = () => {
         <BlogForm createBlog={addBlog} setErrorMessage={setErrorMessage} />
       </Togglable>
       {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} handleLike={handleLike} />
       ))}
     </div>
   );

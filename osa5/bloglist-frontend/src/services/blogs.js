@@ -37,7 +37,7 @@ const create = async (newObject) => {
 
 const update = async (id, newObject) => {
   try {
-    const response = await axios.put(`${baseUrl}/${id}`, newObject, getConfig());
+    const response = await axios.patch(`${baseUrl}/${id}`, newObject, getConfig());
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 401) {
