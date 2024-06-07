@@ -47,9 +47,21 @@ const update = async (id, newObject) => {
   }
 };
 
+const remove = async (id) => {
+  try {
+    await axios.delete(`${baseUrl}/${id}`, getConfig());
+  } catch (error) {
+    if (error.response && error.response.status === 401) {
+      handleTokenExpiration();
+    }
+    throw error;
+  }
+};
+
 export default {
   getAll,
   create,
   update,
+  remove,
   setToken,
 };

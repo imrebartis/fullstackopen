@@ -104,6 +104,7 @@ const App = () => {
     const createBlog = async (blogObject) => {
       try {
         const returnedBlog = await blogService.create(blogObject);
+        returnedBlog.user = user;
         setBlogs([...blogs, returnedBlog]);
         setSuccessMessage(
           `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
@@ -141,6 +142,35 @@ const App = () => {
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
+    }
+  };
+
+  const handleRemove = async (id) => {
+    const blog = blogs.find((blog) => blog.id === id);
+
+    const removeBlog = async (id) => {
+      try {
+        await blogService.remove(id);
+        setBlogs(blogs.filter((blog) => blog.id !== id));
+        setSuccessMessage(`Blog ${blog.title} by ${blog.author} removed`);
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 5000);
+      } catch (error) {
+        console.error("Error removing blog:", error);
+        if (error.response && error.response.status === 403) {
+          setErrorMessage("You can only remove blogs that you added.");
+        } else {
+          setErrorMessage("Error removing blog");
+        }
+        setTimeout(() => {
+          setErrorMessage(null);
+        }, 5000);
+      }
+    };
+
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
+      removeBlog(id);
     }
   };
 
@@ -186,7 +216,13 @@ const App = () => {
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
-          <Blog key={blog.id} blog={blog} handleLike={handleLike} />
+          <Blog
+            key={blog.id}
+            blog={blog}
+            handleLike={handleLike}
+            handleRemove={handleRemove}
+            loggedInUser={user}
+          />
         ))}
     </div>
   );

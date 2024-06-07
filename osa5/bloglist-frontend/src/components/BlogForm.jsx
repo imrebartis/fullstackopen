@@ -1,9 +1,17 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const BlogForm = ({ createBlog, setErrorMessage }) => {
+const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
   const [newTitle, setNewTitle] = useState("");
   const [newAuthor, setNewAuthor] = useState("");
   const [newUrl, setNewUrl] = useState("");
+
+  useEffect(() => {
+    if (!visible) {
+      setNewTitle("");
+      setNewAuthor("");
+      setNewUrl("");
+    }
+  }, [visible]);
 
   const addBlog = (event) => {
     event.preventDefault();
