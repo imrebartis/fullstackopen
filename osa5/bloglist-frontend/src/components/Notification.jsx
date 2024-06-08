@@ -1,16 +1,22 @@
-import Message from "./Message";
+import PropTypes from 'prop-types'
+import Message from './Message'
 
 const Notification = ({ successMessage, errorMessage }) => {
   if (!successMessage && !errorMessage) {
-    return null;
+    return null
   }
 
   return (
     <Message
-      className={successMessage ? "success" : "error"}
+      className={successMessage ? 'success' : 'error'}
       message={successMessage || errorMessage}
     />
-  );
-};
+  )
+}
 
-export default Notification;
+PropTypes.Notification = {
+  successMessage: PropTypes.string,
+  errorMessage: PropTypes.string,
+}
+
+export default Notification
