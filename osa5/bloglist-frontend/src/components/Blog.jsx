@@ -24,7 +24,7 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
     loggedInUser && blog.user && loggedInUser.id === blog.user.id
 
   return (
-    <div style={blogStyle}>
+    <div data-testid='blog' style={blogStyle}>
       <div>
         {blog.title} {blog.author}
         <button
