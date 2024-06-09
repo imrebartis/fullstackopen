@@ -24,10 +24,11 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
     loggedInUser && blog.user && loggedInUser.id === blog.user.id
 
   return (
-    <div data-testid='blog' style={blogStyle}>
+    <div data-testid="blog" style={blogStyle}>
       <div>
         {blog.title} {blog.author}
         <button
+          className="visibility-button"
           onClick={() => setVisible(!visible)}
           style={{ marginLeft: '8px', marginBottom: '8px' }}
         >
@@ -35,14 +36,16 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
         </button>
       </div>
       <div style={visible ? { display: '' } : { display: 'none' }}>
-        <div>{blog.url}</div>
-        <div>
+        <div data-testid="blog-url">{blog.url}</div>
+        <div data-testid="blog-likes">
           likes {blog.likes}
           <button onClick={handleLikeButtonClick} style={{ marginLeft: '8px' }}>
             like
           </button>
         </div>
-        <div style={{ marginBottom: '8px' }}>{blog.user.name}</div>
+        <div data-testid="blog-username" style={{ marginBottom: '8px' }}>
+          {blog.user.name}
+        </div>
         {showRemoveButton && (
           <button
             onClick={handleRemoveButtonClick}
