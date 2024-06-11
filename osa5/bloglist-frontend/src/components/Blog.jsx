@@ -39,7 +39,11 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
         <div data-testid="blog-url">{blog.url}</div>
         <div data-testid="blog-likes">
           likes {blog.likes}
-          <button onClick={handleLikeButtonClick} style={{ marginLeft: '8px' }}>
+          <button
+            data-testid="like-button"
+            onClick={handleLikeButtonClick}
+            style={{ marginLeft: '8px' }}
+          >
             like
           </button>
         </div>

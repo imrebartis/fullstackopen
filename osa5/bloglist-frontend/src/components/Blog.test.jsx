@@ -77,3 +77,17 @@ test('clicking the visibility button results in displaying the number of likes',
   const likesElement = getByTestId('blog-likes')
   expect(likesElement).toHaveTextContent('likes 7')
 })
+
+test('clicking twice the like button calls event handler twice', async () => {
+  const { div, getByTestId, handleLike } = setup()
+
+  const user = userEvent.setup()
+  const visibilityButton = div.querySelector('.visibility-button')
+  await user.click(visibilityButton)
+
+  const likeButton = getByTestId('like-button')
+  await user.click(likeButton)
+  await user.click(likeButton)
+
+  expect(handleLike.mock.calls).toHaveLength(2)
+})
