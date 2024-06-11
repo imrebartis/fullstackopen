@@ -110,7 +110,9 @@ const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
           autoComplete="off"
         ></input>
       </div>
-      <button type="submit">create</button>
+      <button data-testid="send-button" type="submit">
+        create
+      </button>
     </form>
   )
 }
