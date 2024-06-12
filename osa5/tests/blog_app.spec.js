@@ -16,9 +16,31 @@ describe('Blog app', () => {
 
   test('Login form is shown', async ({ page }) => {
     await expect(page.getByText('Log in to application')).toBeVisible()
-    const usernameInput = await page.$('input[name="Username"]')
-    const passwordInput = await page.$('input[name="Password"]')
+    const usernameInput = await page.getByTestId('username')
+    const passwordInput = await page.getByTestId('password')
     expect(usernameInput).not.toBeNull()
     expect(passwordInput).not.toBeNull()
+  })
+
+  describe('Login', () => {
+    test('succeeds with correct credentials', async ({ page }) => {
+      const usernameInput = await page.getByTestId('username')
+      const passwordInput = await page.getByTestId('password')
+      await usernameInput.fill('testuser')
+      await passwordInput.fill('salainen')
+      await page.getByRole('button', { name: 'log in' }).click()
+
+      await expect(page.getByText('Test User logged in')).toBeVisible()
+    })
+
+    test('fails with wrong credentials', async ({ page }) => {
+      const usernameInput = await page.getByTestId('username')
+      const passwordInput = await page.getByTestId('password')
+      await usernameInput.fill('testuser')
+      await passwordInput.fill('secret')
+      await page.getByRole('button', { name: 'log in' }).click()
+
+      await expect(page.getByText('Wrong credentials')).toBeVisible()
+    })
   })
 })

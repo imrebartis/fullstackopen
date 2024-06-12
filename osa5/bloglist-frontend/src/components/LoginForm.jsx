@@ -13,6 +13,7 @@ const LoginForm = ({
         username
         <input
           type="text"
+          data-testid='username'
           value={username}
           name="Username"
           onChange={({ target }) => setUsername(target.value)}
@@ -23,13 +24,14 @@ const LoginForm = ({
         password
         <input
           type="password"
+          data-testid='password'
           value={password}
           name="Password"
           onChange={({ target }) => setPassword(target.value)}
           style={{ marginLeft: '8px', marginBottom: '8px' }}
         />
       </div>
-      <button type="submit">login</button>
+      <button type="submit">log in</button>
     </form>
   )
 }
