@@ -28,6 +28,7 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
       <div>
         {blog.title} {blog.author}
         <button
+          data-testid="visibility-button"
           className="visibility-button"
           onClick={() => setVisible(!visible)}
           style={{ marginLeft: '8px', marginBottom: '8px' }}

@@ -104,7 +104,7 @@ test('<BlogForm /> updates parent state and calls onSubmit', async () => {
   const titleInput = container.querySelector('#title')
   const authorInput = container.querySelector('#author')
   const urlInput = container.querySelector('#url')
-  const sendButton = getByTestId('send-button')
+  const sendButton = getByTestId('create-button')
 
   await user.type(titleInput, 'test title')
   await user.type(authorInput, 'test author')

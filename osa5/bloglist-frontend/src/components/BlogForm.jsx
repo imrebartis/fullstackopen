@@ -75,6 +75,7 @@ const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
         <input
           type="text"
           style={{ marginLeft: '8px' }}
+          data-testid="title"
           id="title"
           name="title"
           value={newTitle}
@@ -89,6 +90,7 @@ const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
         <input
           type="text"
           style={{ marginLeft: '8px' }}
+          data-testid="author"
           id="author"
           name="author"
           value={newAuthor}
@@ -103,6 +105,7 @@ const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
         <input
           type="text"
           style={{ marginLeft: '8px' }}
+          data-testid="url"
           id="url"
           name="url"
           value={newUrl}
@@ -110,7 +113,7 @@ const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
           autoComplete="off"
         ></input>
       </div>
-      <button data-testid="send-button" type="submit">
+      <button data-testid="create-button" type="submit">
         create
       </button>
     </form>
