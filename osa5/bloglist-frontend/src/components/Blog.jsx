@@ -53,6 +53,7 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
         </div>
         {showRemoveButton && (
           <button
+            data-testid={"remove-button"}
             onClick={handleRemoveButtonClick}
             style={{ marginBottom: '8px' }}
           >

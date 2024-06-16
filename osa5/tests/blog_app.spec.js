@@ -80,5 +80,21 @@ describe('Blog app', () => {
       await page.getByTestId('like-button').click()
       await expect(await page.getByText('likes 1')).toBeVisible()
     })
+
+    test('blog can be removed', async ({ page }) => {
+      await page.getByTestId('visibility-button').click()
+      page.on('dialog', (dialog) => dialog.accept())
+      await page.getByTestId('remove-button').click()
+      const blogTitle = 'a blog created by playwright'
+      const expectedMessage = `Blog ${blogTitle} by removed`
+      await page.waitForFunction(
+        `document.body.innerText.includes('${expectedMessage}')`
+      )
+
+      const blogExists = await page.evaluate(
+        `!!document.querySelector('[data-testid="blog"]')`
+      )
+      expect(blogExists).toBe(false)
+    })
   })
 })
