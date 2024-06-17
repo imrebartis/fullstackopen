@@ -96,5 +96,30 @@ describe('Blog app', () => {
       )
       expect(blogExists).toBe(false)
     })
+
+    test('only the user that created the blog can remove the blog', async({ page, request }) => {
+      await page.getByTestId('logout-button').click()
+      await page.waitForSelector('text="Log in to application"')
+      await request.post('http:localhost:3003/api/testing/reset')
+      await request.post('http://localhost:3003/api/users', {
+        data: {
+          name: 'Testikäyttäjä',
+          username: 'testikäyttäjä',
+          password: 'secret',
+        },
+      })
+
+      await login(page, 'testikäyttäjä', 'secret')
+      await expect(page.getByText('Testikäyttäjä logged in')).toBeVisible()
+
+      await page.waitForSelector('text="a blog created by playwright"')
+      expect(await page.locator('text="a blog created by playwright"').isVisible()).toBe(true)
+
+      await page.getByTestId('visibility-button').click()
+
+      expect(
+        await page.getByTestId('remove-button').isVisible()
+      ).toBe(false)
+    })
   })
 })

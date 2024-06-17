@@ -206,7 +206,11 @@ const App = () => {
       />
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <p>{user.name} logged in</p>
-        <button onClick={handleLogout} style={{ marginLeft: '8px' }}>
+        <button
+          data-testid="logout-button"
+          onClick={handleLogout}
+          style={{ marginLeft: '8px' }}
+        >
           log out
         </button>
       </div>
