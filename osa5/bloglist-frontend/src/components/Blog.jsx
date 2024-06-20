@@ -39,7 +39,7 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
       <div style={visible ? { display: '' } : { display: 'none' }}>
         <div data-testid="blog-url">{blog.url}</div>
         <div data-testid="blog-likes">
-          likes {blog.likes}
+          likes <span data-testid="number-of-likes">{blog.likes}</span>
           <button
             data-testid="like-button"
             onClick={handleLikeButtonClick}
