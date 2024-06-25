@@ -38,4 +38,24 @@ const reducer = (state = initialState, action) => {
   }
 };
 
+const generateId = () => Number((Math.random() * 1000000).toFixed(0));
+
+export const createAnecdote = (anecdote) => {
+  return {
+    type: "NEW_ANECDOTE",
+    payload: {
+      content: anecdote,
+      id: generateId(),
+      votes: 0,
+    },
+  };
+};
+
+export const vote = (id) => {
+  return {
+    type: "VOTE",
+    payload: { id },
+  }
+};
+
 export default reducer;
