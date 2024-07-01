@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit'
+import { createSlice } from "@reduxjs/toolkit";
 
 const anecdotesAtStart = [
   "If it hurts, do it more often",
@@ -21,17 +21,16 @@ const asObject = (anecdote) => {
 
 const initialState = anecdotesAtStart.map(asObject);
 
-
 const generateId = () => Number((Math.random() * 1000000).toFixed(0));
 
 export const anecdoteReducer = createSlice({
-  name: 'anecdotes',
+  name: "anecdotes",
   initialState,
   reducers: {
     vote: (state, action) => {
       const id = action.payload;
-      console.log('id:', id)
-      console.log('state:', JSON.parse(JSON.stringify(state)))
+      console.log("id:", id);
+      console.log("state:", JSON.parse(JSON.stringify(state)));
       return state.map((anecdote) =>
         anecdote.id === id
           ? { ...anecdote, votes: anecdote.votes + 1 }
@@ -44,12 +43,10 @@ export const anecdoteReducer = createSlice({
         id: generateId(),
         votes: 0,
       };
-      state.push(newAnecdote)
-    }
-  }
+      state.push(newAnecdote);
+    },
+  },
 });
 
-export const { vote, createAnecdote } = anecdoteReducer.actions
-export default anecdoteReducer.reducer
-
-
+export const { vote, createAnecdote } = anecdoteReducer.actions;
+export default anecdoteReducer.reducer;
