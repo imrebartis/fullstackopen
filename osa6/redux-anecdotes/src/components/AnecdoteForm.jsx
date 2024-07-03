@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { createAnecdote } from "../reducers/anecdoteReducer";
+import {
+  clearNotification,
+  setNotification,
+} from "../reducers/notificationReducer";
 
 const AnecdoteForm = () => {
   const [anecdote, setAnecdote] = useState("");
@@ -10,7 +14,11 @@ const AnecdoteForm = () => {
     event.preventDefault();
     if (!anecdote.trim()) return;
     dispatch(createAnecdote(anecdote));
+    dispatch(setNotification(`the anecdote ${anecdote} has been created`));
     setAnecdote("");
+    setTimeout(() => {
+      dispatch(clearNotification(""));
+    }, 5000);
   };
 
   return (
