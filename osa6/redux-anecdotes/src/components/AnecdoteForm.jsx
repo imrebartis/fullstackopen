@@ -4,8 +4,9 @@ import { createAnecdote } from "../reducers/anecdoteReducer";
 import {
   clearNotification,
   setNotification,
+  setErrorNotification,
+  clearErrorNotification,
 } from "../reducers/notificationReducer";
-import anecdoteService from "../services/anecdotes";
 
 const AnecdoteForm = () => {
   const [anecdote, setAnecdote] = useState("");
@@ -13,14 +14,23 @@ const AnecdoteForm = () => {
 
   const addAnecdote = async (event) => {
     event.preventDefault();
-    if (!anecdote.trim()) return;
-    const newAnecdote = await anecdoteService.createNew(anecdote);
-    dispatch(createAnecdote(newAnecdote));
-    dispatch(setNotification(`the anecdote "${anecdote}" has been created`));
-    setAnecdote("");
-    setTimeout(() => {
-      dispatch(clearNotification(""));
-    }, 5000);
+    if (!anecdote.trim()) {
+      dispatch(setErrorNotification("Anecdote cannot be empty"));
+      return;
+    }
+
+    try {
+      dispatch(createAnecdote(anecdote));
+      dispatch(setNotification(`the anecdote "${anecdote}" has been created`));
+      setAnecdote("");
+      dispatch(clearErrorNotification(""));
+      setTimeout(() => {
+        dispatch(clearNotification(""));
+      }, 5000);
+    } catch (error) {
+      console.error("Failed to add anecdote:", error);
+      dispatch(setErrorNotification(`Error adding anecdote: ${error.message}`));
+    }
   };
 
   return (
@@ -29,6 +39,7 @@ const AnecdoteForm = () => {
       <form onSubmit={addAnecdote}>
         <div>
           <input
+            name="anecdote"
             value={anecdote}
             onChange={(e) => setAnecdote(e.target.value)}
           />

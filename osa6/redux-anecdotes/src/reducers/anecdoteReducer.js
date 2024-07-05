@@ -1,4 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+import anecdoteService from "../services/anecdotes";
+import {
+  setErrorNotification,
+  clearErrorNotification,
+} from "./notificationReducer";
 
 const initialState = [];
 
@@ -16,9 +21,6 @@ export const anecdoteReducer = createSlice({
           : anecdote
       );
     },
-    createAnecdote: (state, action) => {
-      state.push(action.payload);
-    },
     setAnecdotes: (state, action) => {
       return action.payload;
     },
@@ -28,5 +30,27 @@ export const anecdoteReducer = createSlice({
   },
 });
 
-export const { vote, createAnecdote, setAnecdotes, appendAnecdote } = anecdoteReducer.actions;
+export const initializeAnecdotes = () => {
+  return async (dispatch) => {
+    try {
+      const anecdotes = await anecdoteService.getAll();
+      dispatch(setAnecdotes(anecdotes));
+      dispatch(clearErrorNotification(""));
+    } catch (error) {
+      console.error("Failed to fetch anecdotes:", error);
+      dispatch(
+        setErrorNotification(`Error fetching anecdotes: ${error.message}`)
+      );
+    }
+  };
+};
+
+export const createAnecdote = (content) => {
+  return async (dispatch) => {
+    const newAnecdote = await anecdoteService.createNew(content);
+    dispatch(appendAnecdote(newAnecdote));
+  };
+};
+
+export const { vote, setAnecdotes, appendAnecdote } = anecdoteReducer.actions;
 export default anecdoteReducer.reducer;

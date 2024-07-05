@@ -4,32 +4,14 @@ import AnecdoteForm from "./components/AnecdoteForm";
 import AnecdoteList from "./components/AnecdoteList";
 import Filter from "./components/Filter";
 import Notification from "./components/Notification";
-import anecdoteService from "./services/anecdotes";
-import { setAnecdotes } from "./reducers/anecdoteReducer";
-import {
-  setErrorNotification,
-  clearErrorNotification,
-} from "./reducers/notificationReducer";
+import { initializeAnecdotes } from "./reducers/anecdoteReducer";
 
 const App = () => {
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.notification);
 
   useEffect(() => {
-    const fetchAnecdotes = async () => {
-      try {
-        const anecdotes = await anecdoteService.getAll();
-        dispatch(setAnecdotes(anecdotes));
-        dispatch(clearErrorNotification(""));
-      } catch (error) {
-        console.error("Failed to fetch anecdotes:", error);
-        dispatch(
-          setErrorNotification(`Error fetching anecdotes: ${error.message}`)
-        );
-      }
-    };
-
-    fetchAnecdotes();
+    dispatch(initializeAnecdotes());
   }, []);
 
   return (
