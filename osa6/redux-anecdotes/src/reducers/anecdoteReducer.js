@@ -11,21 +11,17 @@ export const anecdoteReducer = createSlice({
   name: "anecdotes",
   initialState,
   reducers: {
-    vote: (state, action) => {
-      const id = action.payload;
-      console.log("id:", id);
-      console.log("state:", JSON.parse(JSON.stringify(state)));
-      return state.map((anecdote) =>
-        anecdote.id === id
-          ? { ...anecdote, votes: anecdote.votes + 1 }
-          : anecdote
-      );
-    },
     setAnecdotes: (state, action) => {
       return action.payload;
     },
     appendAnecdote(state, action) {
       state.push(action.payload);
+    },
+    updateAnecdote: (state, action) => {
+      const updatedAnecdote = action.payload;
+      return state.map((anecdote) =>
+        anecdote.id === updatedAnecdote.id ? updatedAnecdote : anecdote
+      );
     },
   },
 });
@@ -52,5 +48,18 @@ export const createAnecdote = (content) => {
   };
 };
 
-export const { vote, setAnecdotes, appendAnecdote } = anecdoteReducer.actions;
+export const vote = (id) => {
+  return async (dispatch) => {
+    try {
+      const updatedAnecdote = await anecdoteService.updateVotes(id);
+      dispatch(updateAnecdote(updatedAnecdote));
+    } catch (error) {
+      console.error("Failed to update votes for anecdote:", error);
+      dispatch(setErrorNotification(`Error updating votes: ${error.message}`));
+    }
+  };
+};
+
+export const { setAnecdotes, appendAnecdote, updateAnecdote } =
+  anecdoteReducer.actions;
 export default anecdoteReducer.reducer;
