@@ -1,9 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import anecdoteService from "../services/anecdotes";
-import {
-  setErrorNotification,
-  clearErrorNotification,
-} from "./notificationReducer";
+import { setNotification } from "./notificationReducer";
 
 const initialState = [];
 
@@ -18,6 +15,7 @@ export const anecdoteReducer = createSlice({
       state.push(action.payload);
     },
     updateAnecdote: (state, action) => {
+      console.log(JSON.parse(JSON.stringify(state)));
       const updatedAnecdote = action.payload;
       return state.map((anecdote) =>
         anecdote.id === updatedAnecdote.id ? updatedAnecdote : anecdote
@@ -31,11 +29,11 @@ export const initializeAnecdotes = () => {
     try {
       const anecdotes = await anecdoteService.getAll();
       dispatch(setAnecdotes(anecdotes));
-      dispatch(clearErrorNotification(""));
     } catch (error) {
       console.error("Failed to fetch anecdotes:", error);
       dispatch(
-        setErrorNotification(`Error fetching anecdotes: ${error.message}`)
+        setNotification(`Error fetching anecdotes: ${error.message}`, 10)
+
       );
     }
   };
@@ -55,7 +53,7 @@ export const vote = (id) => {
       dispatch(updateAnecdote(updatedAnecdote));
     } catch (error) {
       console.error("Failed to update votes for anecdote:", error);
-      dispatch(setErrorNotification(`Error updating votes: ${error.message}`));
+      dispatch(setNotification(`Error updating votes: ${error.message}`, 10));
     }
   };
 };
