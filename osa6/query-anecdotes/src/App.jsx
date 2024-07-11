@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import { getAnecdotes } from "./services/anecdotes";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { getAnecdotes, updateAnecdote } from "./services/anecdotes";
 import AnecdoteForm from "./components/AnecdoteForm";
 import Notification from "./components/Notification";
 import Loading from "./components/Loading";
@@ -10,15 +10,30 @@ const useAnecdotes = () => {
     queryKey: ["anecdotes"],
     queryFn: getAnecdotes,
     retry: 1,
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
   });
+};
+
+const updateAnecdoteMutation = (updatedAnecdote, queryClient) => {
+  return queryClient.setQueryData(["anecdotes"], (oldAnecdotes) =>
+    oldAnecdotes.map((anecdote) =>
+      anecdote.id === updatedAnecdote.id ? updatedAnecdote : anecdote
+    )
+  );
 };
 
 const App = () => {
   const { data: anecdotes, isLoading, isError } = useAnecdotes();
+  const queryClient = useQueryClient();
 
   const handleVote = (anecdote) => {
     console.log("vote", anecdote.id);
+    const updatedAnecdote = { ...anecdote, votes: (anecdote.votes || 0) + 1 };
+    async function updateAnecdoteOnVote(updatedAnecdote) {
+      await updateAnecdote(updatedAnecdote);
+      updateAnecdoteMutation(updatedAnecdote, queryClient);
+    }
+    updateAnecdoteOnVote(updatedAnecdote);
   };
 
   if (isLoading) return <Loading />;
@@ -37,7 +52,7 @@ const App = () => {
           <div key={anecdote.id}>
             <div>{anecdote.content}</div>
             <div>
-              has {anecdote.votes}
+              has {anecdote.votes || 0}
               <button onClick={() => handleVote(anecdote)}>vote</button>
             </div>
           </div>
