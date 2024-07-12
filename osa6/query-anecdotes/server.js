@@ -9,7 +9,7 @@ const validator = (request, response, next) => {
 
   if (request.method === "POST" && (!content || content.length < 5)) {
     return response.status(400).json({
-      error: "too short anecdote, must have length 5 or more",
+      error: "the anecdote is too short, it should be at least 5 characters long",
     });
   } else {
     next();
