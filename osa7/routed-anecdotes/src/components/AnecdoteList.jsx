@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import Notification from "./Notification";
 
-const AnecdoteList = ({ anecdotes }) => (
+const AnecdoteList = ({ anecdotes, notification }) => {
+  return (
   <div>
     <h2>Anecdotes</h2>
     <ul>
@@ -10,7 +12,9 @@ const AnecdoteList = ({ anecdotes }) => (
         </li>
       ))}
     </ul>
+    {notification && <Notification message={notification} />}
   </div>
-);
+  );
+}
 
 export default AnecdoteList;
