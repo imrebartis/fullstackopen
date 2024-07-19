@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import Blog from './Blog'
 
 const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
   const [newTitle, setNewTitle] = useState('')

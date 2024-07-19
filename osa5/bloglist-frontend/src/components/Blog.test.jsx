@@ -9,9 +9,9 @@ const setup = () => {
     title: 'Component testing is done with react-testing-library',
     url: 'http://www.blog1.com',
     user: {
-      name: 'Test User',
+      name: 'Test User'
     },
-    likes: 7,
+    likes: 7
   }
 
   const handleLike = vi.fn()
@@ -35,7 +35,7 @@ const setup = () => {
     blog,
     handleLike,
     handleRemove,
-    loggedInUser,
+    loggedInUser
   }
 }
 

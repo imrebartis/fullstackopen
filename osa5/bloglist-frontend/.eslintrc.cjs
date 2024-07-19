@@ -11,6 +11,8 @@ module.exports = {
     'plugin:react/jsx-runtime',
     'plugin:react-hooks/recommended',
     'plugin:vitest-globals/recommended',
+    'plugin:prettier/recommended',
+    'prettier'
   ],
   ignorePatterns: ['dist', '.eslintrc.cjs'],
   parserOptions: { ecmaVersion: 'latest', sourceType: 'module' },
@@ -45,6 +47,10 @@ module.exports = {
     "react/prop-types": 0,
     "react/react-in-jsx-scope": "off",
     "react/prop-types": 0,
-    "no-unused-vars": 0
+    "no-unused-vars": 0,
+    "react/jsx-max-props-per-line": [
+      1,
+      { "maximum": 1, "when": "always" }
+    ],
   },
 }

@@ -9,7 +9,7 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
     paddingLeft: 2,
     border: 'solid',
     borderWidth: 1,
-    marginBottom: 5,
+    marginBottom: 5
   }
 
   const handleLikeButtonClick = () => {
@@ -31,31 +31,51 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
           data-testid="visibility-button"
           className="visibility-button"
           onClick={() => setVisible(!visible)}
-          style={{ marginLeft: '8px', marginBottom: '8px' }}
+          style={{
+            marginLeft: '8px',
+            marginBottom: '8px'
+          }}
         >
           {visible ? 'hide' : 'view'}
         </button>
       </div>
-      <div style={visible ? { display: '' } : { display: 'none' }}>
+      <div
+        style={
+          visible
+            ? { display: '' }
+            : {
+                display: 'none'
+              }
+        }
+      >
         <div data-testid="blog-url">{blog.url}</div>
         <div data-testid="blog-likes">
           likes <span data-testid="number-of-likes">{blog.likes}</span>
           <button
             data-testid="like-button"
             onClick={handleLikeButtonClick}
-            style={{ marginLeft: '8px' }}
+            style={{
+              marginLeft: '8px'
+            }}
           >
             like
           </button>
         </div>
-        <div data-testid="blog-username" style={{ marginBottom: '8px' }}>
+        <div
+          data-testid="blog-username"
+          style={{
+            marginBottom: '8px'
+          }}
+        >
           {blog.user.name}
         </div>
         {showRemoveButton && (
           <button
             data-testid="remove-button"
             onClick={handleRemoveButtonClick}
-            style={{ marginBottom: '8px' }}
+            style={{
+              marginBottom: '8px'
+            }}
           >
             remove
           </button>
@@ -69,7 +89,7 @@ Blog.propTypes = {
   blog: PropTypes.object.isRequired,
   handleLike: PropTypes.func.isRequired,
   handleRemove: PropTypes.func.isRequired,
-  loggedInUser: PropTypes.object.isRequired,
+  loggedInUser: PropTypes.object.isRequired
 }
 
 export default Blog

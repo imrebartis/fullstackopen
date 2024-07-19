@@ -14,7 +14,7 @@ const setToken = (newToken) => {
 }
 
 const getConfig = () => ({
-  headers: { Authorization: token },
+  headers: { Authorization: token }
 })
 
 const getAll = async () => {
@@ -37,7 +37,11 @@ const create = async (newObject) => {
 
 const update = async (id, newObject) => {
   try {
-    const response = await axios.patch(`${baseUrl}/${id}`, newObject, getConfig())
+    const response = await axios.patch(
+      `${baseUrl}/${id}`,
+      newObject,
+      getConfig()
+    )
     return response.data
   } catch (error) {
     if (error.response && error.response.status === 401) {
@@ -63,5 +67,5 @@ export default {
   create,
   update,
   remove,
-  setToken,
+  setToken
 }
