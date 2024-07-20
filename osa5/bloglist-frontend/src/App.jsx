@@ -6,6 +6,10 @@ import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
 import LoginForm from './components/LoginForm'
 import Togglable from './components/Togglable'
+import {
+  useNotificationValue,
+  useNotificationDispatch
+} from './NotificationContext'
 
 import './index.css'
 
@@ -15,8 +19,9 @@ const App = () => {
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [successMessage, setSuccessMessage] = useState(null)
-  const [errorMessage, setErrorMessage] = useState(null)
+
+  const notification = useNotificationValue()
+  const dispatch = useNotificationDispatch()
 
   const blogFormRef = useRef()
 
@@ -27,10 +32,10 @@ const App = () => {
         setBlogs(blogs)
       } catch (error) {
         console.error(error)
-        setErrorMessage('Error fetching blogs')
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
+        dispatch({
+          type: 'SET_ERROR_NOTIFICATION',
+          payload: 'Error fetching blogs'
+        })
       }
     }
 
@@ -46,10 +51,10 @@ const App = () => {
         blogService.setToken(user.token)
       } catch (error) {
         console.error(error)
-        setErrorMessage('Error fetching user')
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
+        dispatch({
+          type: 'SET_ERROR_NOTIFICATION',
+          payload: 'Error fetching user'
+        })
       }
     }
     setIsLoading(false)
@@ -68,21 +73,22 @@ const App = () => {
       setUser(user)
       setUsername('')
       setPassword('')
-      setSuccessMessage(`Welcome back, ${user.name}!`)
-      setTimeout(() => {
-        setSuccessMessage(null)
-      }, 5000)
+      dispatch({
+        type: 'SET_SUCCESS_NOTIFICATION',
+        payload: `Welcome back, ${user.name}!`
+      })
     } catch (exception) {
       if (exception.response && exception.response.status === 401) {
-        setErrorMessage('Wrong credentials')
+        dispatch({
+          type: 'SET_ERROR_NOTIFICATION',
+          payload: 'Wrong credentials'
+        })
       } else {
-        setErrorMessage(
-          'Could not connect to the server. Please try again later.'
-        )
+        dispatch({
+          type: 'SET_ERROR_NOTIFICATION',
+          payload: 'Could not connect to the server. Please try again later.'
+        })
       }
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
     }
   }
 
@@ -92,10 +98,10 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     blogService.setToken(null)
     setUser(null)
-    setSuccessMessage('You have been logged out successfully.')
-    setTimeout(() => {
-      setSuccessMessage(null)
-    }, 5000)
+    dispatch({
+      type: 'SET_SUCCESS_NOTIFICATION',
+      payload: `You have been logged out successfully.`
+    })
   }
 
   const addBlog = (blogObject) => {
@@ -106,22 +112,23 @@ const App = () => {
         const returnedBlog = await blogService.create(blogObject)
         returnedBlog.user = user
         setBlogs([...blogs, returnedBlog])
-        setSuccessMessage(
-          `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
-        )
-        setTimeout(() => {
-          setSuccessMessage(null)
-        }, 5000)
+        dispatch({
+          type: 'SET_SUCCESS_NOTIFICATION',
+          payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
+        })
       } catch (error) {
         console.error('Error creating blog:', error)
         if (error.response && error.response.status === 401) {
-          setErrorMessage('Your session has expired. Please log in again.')
+          dispatch({
+            type: 'SET_ERROR_NOTIFICATION',
+            payload: 'Your session has expired. Please log in again.'
+          })
         } else {
-          setErrorMessage('Error creating blog')
+          dispatch({
+            type: 'SET_ERROR_NOTIFICATION',
+            payload: 'Error creating blog'
+          })
         }
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
       }
     }
 
@@ -138,10 +145,10 @@ const App = () => {
       setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)))
     } catch (error) {
       console.error('Error updating blog:', error)
-      setErrorMessage('Error updating blog')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch({
+        type: 'SET_ERROR_NOTIFICATION',
+        payload: 'Error updating blog'
+      })
     }
   }
 
@@ -152,20 +159,23 @@ const App = () => {
       try {
         await blogService.remove(id)
         setBlogs(blogs.filter((blog) => blog.id !== id))
-        setSuccessMessage(`Blog ${blog.title} by ${blog.author} removed`)
-        setTimeout(() => {
-          setSuccessMessage(null)
-        }, 5000)
+        dispatch({
+          type: 'SET_SUCCESS_NOTIFICATION',
+          payload: `Blog ${blog.title} by ${blog.author} removed`
+        })
       } catch (error) {
         console.error('Error removing blog:', error)
         if (error.response && error.response.status === 403) {
-          setErrorMessage('You can only remove blogs that you added.')
+          dispatch({
+            type: 'SET_ERROR_NOTIFICATION',
+            payload: 'You can only remove blogs that you added.'
+          })
         } else {
-          setErrorMessage('Error removing blog')
+          dispatch({
+            type: 'SET_ERROR_NOTIFICATION',
+            payload: 'Error removing blog'
+          })
         }
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
       }
     }
 
@@ -182,10 +192,7 @@ const App = () => {
     return (
       <div>
         <h2>Log in to application</h2>
-        <Notification
-          successMessage={successMessage}
-          errorMessage={errorMessage}
-        />
+        {notification && <Notification message={notification} />}
         <LoginForm
           username={username}
           password={password}
@@ -200,10 +207,7 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
-      <Notification
-        successMessage={successMessage}
-        errorMessage={errorMessage}
-      />
+      {notification && <Notification message={notification} />}
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <p>{user.name} logged in</p>
         <button
@@ -215,7 +219,7 @@ const App = () => {
         </button>
       </div>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm createBlog={addBlog} setErrorMessage={setErrorMessage} />
+        <BlogForm createBlog={addBlog} />
       </Togglable>
       {blogs
         .sort((a, b) => b.likes - a.likes)

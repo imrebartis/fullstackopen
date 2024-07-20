@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
+import { useNotificationDispatch } from '../NotificationContext'
 
-const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
+const BlogForm = ({ createBlog, visible }) => {
   const [newTitle, setNewTitle] = useState('')
   const [newAuthor, setNewAuthor] = useState('')
   const [newUrl, setNewUrl] = useState('')
+
+  const dispatch = useNotificationDispatch()
 
   useEffect(() => {
     if (!visible) {
@@ -18,33 +21,33 @@ const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
     event.preventDefault()
 
     if (!newTitle && !newUrl) {
-      setErrorMessage('Title and url are required')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch({
+        type: 'SET_ERROR_NOTIFICATION',
+        payload: 'Title and url are required'
+      })
       return
     }
 
     if (!newTitle) {
-      setErrorMessage('Title is required')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch({
+        type: 'SET_ERROR_NOTIFICATION',
+        payload: 'Title is required'
+      })
       return
     }
 
     if (!newUrl) {
-      setErrorMessage('Url is required')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
+      dispatch({
+        type: 'SET_ERROR_NOTIFICATION',
+        payload: 'Url is required'
+      })
       return
     }
 
     createBlog({
       title: newTitle,
       author: newAuthor,
-      url: newUrl,
+      url: newUrl
     })
 
     setNewTitle('')
@@ -120,8 +123,7 @@ const BlogForm = ({ createBlog, setErrorMessage, visible }) => {
 }
 
 BlogForm.propTypes = {
-  createBlog: PropTypes.func.isRequired,
-  setErrorMessage: PropTypes.func.isRequired,
+  createBlog: PropTypes.func.isRequired
 }
 
 export default BlogForm

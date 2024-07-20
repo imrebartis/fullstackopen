@@ -1,22 +1,22 @@
 import PropTypes from 'prop-types'
 import Message from './Message'
 
-const Notification = ({ successMessage, errorMessage }) => {
-  if (!successMessage && !errorMessage) {
+const Notification = ({ message }) => {
+  if (!message) {
     return null
   }
 
-  return (
-    <Message
-      className={successMessage ? 'success' : 'error'}
-      message={successMessage || errorMessage}
-    />
-  )
+  const className =
+    message.type === 'SET_SUCCESS_NOTIFICATION' ? 'success' : 'error'
+
+  return <Message className={className} message={message.payload} />
 }
 
-PropTypes.Notification = {
-  successMessage: PropTypes.string,
-  errorMessage: PropTypes.string,
+Notification.propTypes = {
+  message: PropTypes.shape({
+    type: PropTypes.string.isRequired,
+    payload: PropTypes.string.isRequired
+  })
 }
 
 export default Notification
