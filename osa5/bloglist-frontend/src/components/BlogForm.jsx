@@ -1,26 +1,45 @@
-import { useState, useEffect } from 'react'
-import PropTypes from 'prop-types'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { useNotificationDispatch } from '../NotificationContext'
+import { create } from '../services/blogs'
 
-const BlogForm = ({ createBlog, visible }) => {
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
-  const [newUrl, setNewUrl] = useState('')
-
+const BlogForm = ({ visible }) => {
+  const { register, handleSubmit, reset } = useForm()
+  const queryClient = useQueryClient()
   const dispatch = useNotificationDispatch()
 
   useEffect(() => {
     if (!visible) {
-      setNewTitle('')
-      setNewAuthor('')
-      setNewUrl('')
+      reset()
     }
-  }, [visible])
+  }, [visible, reset])
 
-  const addBlog = (event) => {
-    event.preventDefault()
+  const newBlogMutation = useMutation({
+    mutationFn: create,
+    onSuccess: (newBlog) => {
+      queryClient.setQueryData(['blogs'], (oldBlogs) => [...oldBlogs, newBlog])
+      dispatch({
+        type: 'SET_SUCCESS_NOTIFICATION',
+        payload: `the blog "${newBlog.title}" has been created`
+      })
+      queryClient.invalidateQueries(['blogs'])
+      reset()
+    },
+    onError: (error) => {
+      if (error.response && error.response.status === 400) {
+        dispatch({
+          type: 'SET_ERROR_NOTIFICATION',
+          payload: error.response.data.error
+        })
+      }
+    }
+  })
 
-    if (!newTitle && !newUrl) {
+  const onCreate = (data) => {
+    const { title, author, url } = data
+
+    if (!title && !url) {
       dispatch({
         type: 'SET_ERROR_NOTIFICATION',
         payload: 'Title and url are required'
@@ -28,7 +47,7 @@ const BlogForm = ({ createBlog, visible }) => {
       return
     }
 
-    if (!newTitle) {
+    if (!title) {
       dispatch({
         type: 'SET_ERROR_NOTIFICATION',
         payload: 'Title is required'
@@ -36,7 +55,7 @@ const BlogForm = ({ createBlog, visible }) => {
       return
     }
 
-    if (!newUrl) {
+    if (!url) {
       dispatch({
         type: 'SET_ERROR_NOTIFICATION',
         payload: 'Url is required'
@@ -44,86 +63,53 @@ const BlogForm = ({ createBlog, visible }) => {
       return
     }
 
-    createBlog({
-      title: newTitle,
-      author: newAuthor,
-      url: newUrl
-    })
-
-    setNewTitle('')
-    setNewAuthor('')
-    setNewUrl('')
-  }
-
-  const handleTitleChange = (event) => {
-    setNewTitle(event.target.value)
-  }
-
-  const handleAuthorChange = (event) => {
-    setNewAuthor(event.target.value)
-  }
-
-  const handleUrlChange = (event) => {
-    setNewUrl(event.target.value)
+    newBlogMutation.mutate({ title, author, url })
   }
 
   return (
-    <form onSubmit={addBlog} style={{ marginBottom: '16px' }}>
+    <form onSubmit={handleSubmit(onCreate)} style={{ marginBottom: '16px' }}>
       <h2>create new</h2>
       <div
         style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
       >
         title
         <input
+          {...register('title')}
           type="text"
           style={{ marginLeft: '8px' }}
           data-testid="title"
-          id="title"
-          name="title"
-          value={newTitle}
-          onChange={handleTitleChange}
           autoComplete="off"
-        ></input>
+        />
       </div>
       <div
         style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
       >
         author
         <input
+          {...register('author')}
           type="text"
           style={{ marginLeft: '8px' }}
           data-testid="author"
-          id="author"
-          name="author"
-          value={newAuthor}
-          onChange={handleAuthorChange}
           autoComplete="off"
-        ></input>
+        />
       </div>
       <div
         style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
       >
         url:
         <input
+          {...register('url')}
           type="text"
           style={{ marginLeft: '8px' }}
           data-testid="url"
-          id="url"
-          name="url"
-          value={newUrl}
-          onChange={handleUrlChange}
           autoComplete="off"
-        ></input>
+        />
       </div>
       <button data-testid="create-button" type="submit">
         create
       </button>
     </form>
   )
-}
-
-BlogForm.propTypes = {
-  createBlog: PropTypes.func.isRequired
 }
 
 export default BlogForm

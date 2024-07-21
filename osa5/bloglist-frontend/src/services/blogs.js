@@ -17,12 +17,12 @@ const getConfig = () => ({
   headers: { Authorization: token }
 })
 
-const getAll = async () => {
+export const getAll = async () => {
   const response = await axios.get(baseUrl)
   return response.data
 }
 
-const create = async (newObject) => {
+export const create = async (newObject) => {
   try {
     const response = await axios.post(baseUrl, newObject, getConfig())
     return response.data

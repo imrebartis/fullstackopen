@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
+import { getAll } from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
@@ -13,34 +15,26 @@ import {
 
 import './index.css'
 
+const useBlogs = () => {
+  return useQuery({
+    queryKey: ['blogs'],
+    queryFn: getAll,
+    retry: 1,
+    refetchOnWindowFocus: false
+  })
+}
+
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
 
+  const { data: blogsRQ, isLoading, isError } = useBlogs()
   const notification = useNotificationValue()
   const dispatch = useNotificationDispatch()
 
   const blogFormRef = useRef()
-
-  useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        const blogs = await blogService.getAll()
-        setBlogs(blogs)
-      } catch (error) {
-        console.error(error)
-        dispatch({
-          type: 'SET_ERROR_NOTIFICATION',
-          payload: 'Error fetching blogs'
-        })
-      }
-    }
-
-    fetchBlogs()
-  }, [])
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
@@ -57,7 +51,6 @@ const App = () => {
         })
       }
     }
-    setIsLoading(false)
   }, [])
 
   const handleLogin = async (event) => {
@@ -102,37 +95,6 @@ const App = () => {
       type: 'SET_SUCCESS_NOTIFICATION',
       payload: `You have been logged out successfully.`
     })
-  }
-
-  const addBlog = (blogObject) => {
-    blogFormRef.current.toggleVisibility()
-
-    const createBlog = async (blogObject) => {
-      try {
-        const returnedBlog = await blogService.create(blogObject)
-        returnedBlog.user = user
-        setBlogs([...blogs, returnedBlog])
-        dispatch({
-          type: 'SET_SUCCESS_NOTIFICATION',
-          payload: `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`
-        })
-      } catch (error) {
-        console.error('Error creating blog:', error)
-        if (error.response && error.response.status === 401) {
-          dispatch({
-            type: 'SET_ERROR_NOTIFICATION',
-            payload: 'Your session has expired. Please log in again.'
-          })
-        } else {
-          dispatch({
-            type: 'SET_ERROR_NOTIFICATION',
-            payload: 'Error creating blog'
-          })
-        }
-      }
-    }
-
-    createBlog(blogObject)
   }
 
   const handleLike = async (id) => {
@@ -184,10 +146,6 @@ const App = () => {
     }
   }
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
-
   if (user === null) {
     return (
       <div>
@@ -219,19 +177,23 @@ const App = () => {
         </button>
       </div>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm createBlog={addBlog} />
+        <BlogForm />
       </Togglable>
-      {blogs
-        .sort((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            handleLike={handleLike}
-            handleRemove={handleRemove}
-            loggedInUser={user}
-          />
-        ))}
+      {!isLoading &&
+        !isError &&
+        blogsRQ
+          .sort((a, b) => b.likes - a.likes)
+          .map((blog) => (
+            <Blog
+              key={blog.id}
+              blog={blog}
+              handleLike={handleLike}
+              handleRemove={handleRemove}
+              loggedInUser={user}
+            />
+          ))}
+      {isLoading && <div>Loading...</div>}
+      {isError && <div>Error fetching blogs</div>}
     </div>
   )
 }
