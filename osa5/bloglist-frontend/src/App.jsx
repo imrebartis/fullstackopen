@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
-import { getAll } from './services/blogs'
+import { getBlogs, updateBlog, removeBlog } from './services/blogs'
 import loginService from './services/login'
 import Notification from './components/Notification'
 import BlogForm from './components/BlogForm'
@@ -18,19 +18,31 @@ import './index.css'
 const useBlogs = () => {
   return useQuery({
     queryKey: ['blogs'],
-    queryFn: getAll,
+    queryFn: getBlogs,
     retry: 1,
     refetchOnWindowFocus: false
   })
 }
 
+const updateBlogMutation = (updatedBlog, queryClient) => {
+  return queryClient.setQueryData(['blogs'], (oldBlogs) =>
+    oldBlogs.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog))
+  )
+}
+
+const removeBlogMutation = (id, queryClient) => {
+  return queryClient.setQueryData(['blogs'], (oldBlogs) =>
+    oldBlogs.filter((blog) => blog.id !== id)
+  )
+}
+
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
 
-  const { data: blogsRQ, isLoading, isError } = useBlogs()
+  const { data: blogs, isLoading, isError } = useBlogs()
+  const queryClient = useQueryClient()
   const notification = useNotificationValue()
   const dispatch = useNotificationDispatch()
 
@@ -97,16 +109,21 @@ const App = () => {
     })
   }
 
-  const handleLike = async (id) => {
-    const blog = blogs.find((blog) => blog.id === id)
-    const updatedBlog = { ...blog, likes: blog.likes + 1 }
-
+  const handleLike = async (blog) => {
+    console.log('like', blog.id)
+    const updatedBlog = { ...blog, likes: (blog.likes || 0) + 1 }
     try {
-      const returnedBlog = await blogService.update(id, updatedBlog)
-      returnedBlog.user = blog.user
-      setBlogs(blogs.map((blog) => (blog.id !== id ? blog : returnedBlog)))
+      async function updateBlogOnVote(updatedBlog) {
+        await updateBlog(updatedBlog)
+        updateBlogMutation(updatedBlog, queryClient)
+      }
+      await updateBlogOnVote(updatedBlog)
+      dispatch({
+        type: 'SET_SUCCESS_NOTIFICATION',
+        payload: `you voted "${blog.title}"`
+      })
     } catch (error) {
-      console.error('Error updating blog:', error)
+      console.error(error)
       dispatch({
         type: 'SET_ERROR_NOTIFICATION',
         payload: 'Error updating blog'
@@ -117,10 +134,10 @@ const App = () => {
   const handleRemove = async (id) => {
     const blog = blogs.find((blog) => blog.id === id)
 
-    const removeBlog = async (id) => {
+    const removeBlogItem = async (id) => {
       try {
-        await blogService.remove(id)
-        setBlogs(blogs.filter((blog) => blog.id !== id))
+        await removeBlog(id)
+        removeBlogMutation(id, queryClient)
         dispatch({
           type: 'SET_SUCCESS_NOTIFICATION',
           payload: `Blog ${blog.title} by ${blog.author} removed`
@@ -142,7 +159,7 @@ const App = () => {
     }
 
     if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
-      removeBlog(id)
+      removeBlogItem(id)
     }
   }
 
@@ -177,11 +194,11 @@ const App = () => {
         </button>
       </div>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <BlogForm />
+        <BlogForm blogFormRef={blogFormRef} />
       </Togglable>
       {!isLoading &&
         !isError &&
-        blogsRQ
+        blogs
           .sort((a, b) => b.likes - a.likes)
           .map((blog) => (
             <Blog

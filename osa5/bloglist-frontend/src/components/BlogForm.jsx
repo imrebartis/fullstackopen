@@ -2,9 +2,9 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { useNotificationDispatch } from '../NotificationContext'
-import { create } from '../services/blogs'
+import { createBlog } from '../services/blogs'
 
-const BlogForm = ({ visible }) => {
+const BlogForm = ({ visible, blogFormRef }) => {
   const { register, handleSubmit, reset } = useForm()
   const queryClient = useQueryClient()
   const dispatch = useNotificationDispatch()
@@ -16,7 +16,7 @@ const BlogForm = ({ visible }) => {
   }, [visible, reset])
 
   const newBlogMutation = useMutation({
-    mutationFn: create,
+    mutationFn: createBlog,
     onSuccess: (newBlog) => {
       queryClient.setQueryData(['blogs'], (oldBlogs) => [...oldBlogs, newBlog])
       dispatch({
@@ -38,6 +38,7 @@ const BlogForm = ({ visible }) => {
 
   const onCreate = (data) => {
     const { title, author, url } = data
+    blogFormRef.current.toggleVisibility()
 
     if (!title && !url) {
       dispatch({
@@ -63,7 +64,11 @@ const BlogForm = ({ visible }) => {
       return
     }
 
-    newBlogMutation.mutate({ title, author, url })
+    newBlogMutation.mutate({
+      title,
+      author,
+      url
+    })
   }
 
   return (

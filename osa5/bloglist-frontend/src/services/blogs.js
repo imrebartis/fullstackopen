@@ -17,12 +17,12 @@ const getConfig = () => ({
   headers: { Authorization: token }
 })
 
-export const getAll = async () => {
+export const getBlogs = async () => {
   const response = await axios.get(baseUrl)
   return response.data
 }
 
-export const create = async (newObject) => {
+export const createBlog = async (newObject) => {
   try {
     const response = await axios.post(baseUrl, newObject, getConfig())
     return response.data
@@ -35,7 +35,8 @@ export const create = async (newObject) => {
   }
 }
 
-const update = async (id, newObject) => {
+export const updateBlog = async (newObject) => {
+  const id = newObject.id
   try {
     const response = await axios.patch(
       `${baseUrl}/${id}`,
@@ -51,7 +52,7 @@ const update = async (id, newObject) => {
   }
 }
 
-const remove = async (id) => {
+export const removeBlog = async (id) => {
   try {
     await axios.delete(`${baseUrl}/${id}`, getConfig())
   } catch (error) {
@@ -63,9 +64,9 @@ const remove = async (id) => {
 }
 
 export default {
-  getAll,
-  create,
-  update,
-  remove,
+  getBlogs,
+  createBlog,
+  updateBlog,
+  removeBlog,
   setToken
 }

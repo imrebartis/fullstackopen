@@ -13,7 +13,7 @@ const Blog = ({ blog, handleLike, handleRemove, loggedInUser }) => {
   }
 
   const handleLikeButtonClick = () => {
-    handleLike(blog.id)
+    handleLike(blog)
   }
 
   const handleRemoveButtonClick = () => {
