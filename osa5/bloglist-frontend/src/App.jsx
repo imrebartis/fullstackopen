@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useLoginValue, useLoginDispatch } from './LoginContext'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import { getBlogs, updateBlog, removeBlog } from './services/blogs'
@@ -37,9 +38,8 @@ const removeBlogMutation = (id, queryClient) => {
 }
 
 const App = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  const { user, username, password } = useLoginValue()
+  const { setUser, setUsername, setPassword } = useLoginDispatch()
 
   const { data: blogs, isLoading, isError } = useBlogs()
   const queryClient = useQueryClient()
@@ -63,7 +63,7 @@ const App = () => {
         })
       }
     }
-  }, [])
+  }, [setUser, dispatch])
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -83,6 +83,7 @@ const App = () => {
         payload: `Welcome back, ${user.name}!`
       })
     } catch (exception) {
+      console.error('Error logging in:', exception)
       if (exception.response && exception.response.status === 401) {
         dispatch({
           type: 'SET_ERROR_NOTIFICATION',
@@ -168,13 +169,7 @@ const App = () => {
       <div>
         <h2>Log in to application</h2>
         {notification && <Notification message={notification} />}
-        <LoginForm
-          username={username}
-          password={password}
-          setUsername={setUsername}
-          setPassword={setPassword}
-          handleLogin={handleLogin}
-        />
+        <LoginForm handleLogin={handleLogin} />
       </div>
     )
   }

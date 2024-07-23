@@ -1,12 +1,10 @@
 import PropTypes from 'prop-types'
+import { useLoginValue, useLoginDispatch } from '../LoginContext'
 
-const LoginForm = ({
-  handleLogin,
-  username,
-  password,
-  setUsername,
-  setPassword,
-}) => {
+const LoginForm = ({ handleLogin }) => {
+  const { username, password } = useLoginValue()
+  const { setUsername, setPassword } = useLoginDispatch()
+
   return (
     <form onSubmit={handleLogin}>
       <div>
@@ -37,11 +35,7 @@ const LoginForm = ({
 }
 
 LoginForm.propTypes = {
-  handleLogin: PropTypes.func.isRequired,
-  username: PropTypes.string.isRequired,
-  password: PropTypes.string.isRequired,
-  setUsername: PropTypes.func.isRequired,
-  setPassword: PropTypes.func.isRequired,
+  handleLogin: PropTypes.func.isRequired
 }
 
 export default LoginForm
