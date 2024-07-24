@@ -1,6 +1,6 @@
-import User from './User'
 import { useQuery } from '@tanstack/react-query'
 import { getUsers } from '../services/users'
+import User from './User'
 import Loading from './Loading'
 import Error from './Error'
 
@@ -35,7 +35,9 @@ const Users = () => {
         </table>
       )}
       {isLoading && <Loading />}
-      {isError && <Error value="users" />}
+      {isError && (
+        <Error message="Fetching the users failed. Please try again later." />
+      )}
     </div>
   )
 }

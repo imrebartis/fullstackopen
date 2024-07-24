@@ -104,7 +104,9 @@ const BlogList = ({ loggedInUser }) => {
             />
           ))}
       {isLoading && <Loading />}
-      {isError && <Error value="blogs" />}
+      {isError && (
+        <Error message="Fetching the blogs failed. Please try again later." />
+      )}
     </>
   )
 }
