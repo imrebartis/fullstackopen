@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom/client'
+import { BrowserRouter as Router } from 'react-router-dom'
 import App from './App'
 import { NotificationContextProvider } from './NotificationContext'
 import { LoginContextProvider } from './LoginContext'
@@ -9,7 +10,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <NotificationContextProvider>
     <LoginContextProvider>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <Router>
+          <App />
+        </Router>
       </QueryClientProvider>
     </LoginContextProvider>
   </NotificationContextProvider>
