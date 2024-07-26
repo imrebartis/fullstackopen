@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import PropTypes from 'prop-types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { updateBlog, removeBlog } from '../services/blogs'
+import { removeBlog } from '../services/blogs'
 import { useNotificationDispatch } from '../NotificationContext'
 import { getBlogs } from '../services/blogs'
 import Togglable from './Togglable'
@@ -9,6 +9,7 @@ import Blog from './Blog'
 import BlogForm from './BlogForm'
 import Loading from './Loading'
 import Error from './Error'
+import useHandleLike from '../hooks/useHandleLike'
 
 const useBlogs = () => {
   return useQuery({
@@ -17,12 +18,6 @@ const useBlogs = () => {
     retry: 1,
     refetchOnWindowFocus: false
   })
-}
-
-const updateBlogMutation = (updatedBlog, queryClient) => {
-  return queryClient.setQueryData(['blogs'], (oldBlogs) =>
-    oldBlogs.map((blog) => (blog.id !== updatedBlog.id ? blog : updatedBlog))
-  )
 }
 
 const removeBlogMutation = (id, queryClient) => {
@@ -38,27 +33,7 @@ const BlogList = ({ loggedInUser }) => {
 
   const { data: blogs, isLoading, isError } = useBlogs()
 
-  const handleLike = async (blog) => {
-    console.log('like', blog.id)
-    const updatedBlog = { ...blog, likes: (blog.likes || 0) + 1 }
-    try {
-      async function updateBlogOnVote(updatedBlog) {
-        await updateBlog(updatedBlog)
-        updateBlogMutation(updatedBlog, queryClient)
-      }
-      await updateBlogOnVote(updatedBlog)
-      dispatch({
-        type: 'SET_SUCCESS_NOTIFICATION',
-        payload: `you voted "${blog.title}"`
-      })
-    } catch (error) {
-      console.error(error)
-      dispatch({
-        type: 'SET_ERROR_NOTIFICATION',
-        payload: 'Error updating blog'
-      })
-    }
-  }
+  const handleLike = useHandleLike()
 
   const handleRemove = async (id) => {
     const blog = blogs.find((blog) => blog.id === id)

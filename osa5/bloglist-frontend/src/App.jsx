@@ -10,6 +10,7 @@ import {
   useNotificationDispatch
 } from './NotificationContext'
 import UserDetails from './components/UserDetails'
+import BlogDetails from './components/BlogDetails'
 
 import './index.css'
 import Users from './components/Users'
@@ -109,6 +110,7 @@ const App = () => {
       </div>
       <Routes>
         <Route path="users/:id" element={<UserDetails />} />
+        <Route path="blogs/:id" element={<BlogDetails />} />
         <Route path="users" element={<Users />} />
         <Route path="*" element={<BlogList loggedInUser={user} />} />
       </Routes>

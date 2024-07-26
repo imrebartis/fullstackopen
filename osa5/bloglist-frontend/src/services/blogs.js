@@ -22,6 +22,11 @@ export const getBlogs = async () => {
   return response.data
 }
 
+export const getBlog = async (id) => {
+  const response = await axios.get(`${baseUrl}/${id}`)
+  return response.data
+}
+
 export const createBlog = async (newObject) => {
   try {
     const response = await axios.post(baseUrl, newObject, getConfig())
@@ -65,6 +70,7 @@ export const removeBlog = async (id) => {
 
 export default {
   getBlogs,
+  getBlog,
   createBlog,
   updateBlog,
   removeBlog,
