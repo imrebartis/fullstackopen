@@ -11,10 +11,10 @@ import {
 } from './NotificationContext'
 import UserDetails from './components/UserDetails'
 import BlogDetails from './components/BlogDetails'
-
-import './index.css'
 import Users from './components/Users'
 import BlogList from './components/BlogList'
+import './index.css'
+import Menu from './components/Menu'
 
 const App = () => {
   const { user, username, password } = useLoginValue()
@@ -96,23 +96,14 @@ const App = () => {
 
   return (
     <div>
+      <Menu user={user} handleLogout={handleLogout} />
       <h2>blogs</h2>
       {notification && <Notification message={notification} />}
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <p>{user.name} logged in</p>
-        <button
-          data-testid="logout-button"
-          onClick={handleLogout}
-          style={{ marginLeft: '8px' }}
-        >
-          log out
-        </button>
-      </div>
       <Routes>
         <Route path="users/:id" element={<UserDetails />} />
-        <Route path="blogs/:id" element={<BlogDetails />} />
+        <Route path="blogs/:id" element={<BlogDetails loggedInUser={user} />} />
         <Route path="users" element={<Users />} />
-        <Route path="*" element={<BlogList loggedInUser={user} />} />
+        <Route path="*" element={<BlogList />} />
       </Routes>
     </div>
   )

@@ -1,14 +1,25 @@
-import { useParams } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
-import { getBlog } from '../services/blogs'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import propTypes from 'prop-types'
+import { getBlog, removeBlog } from '../services/blogs'
 import { getUsers } from '../services/users'
+import { useNotificationDispatch } from '../NotificationContext'
 import Loading from './Loading'
 import Error from './Error'
 import useHandleLike from '../hooks/useHandleLike'
 
-const BlogDetails = () => {
+const removeBlogMutation = (id, queryClient) => {
+  return queryClient.setQueryData(['blogs'], (oldBlogs) =>
+    oldBlogs.filter((blog) => blog.id !== id)
+  )
+}
+
+const BlogDetails = ({ loggedInUser }) => {
   const { id } = useParams()
   const handleLike = useHandleLike()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const dispatch = useNotificationDispatch()
 
   const {
     data: blog,
@@ -28,6 +39,33 @@ const BlogDetails = () => {
     queryFn: getUsers
   })
 
+  const showRemoveButton =
+    loggedInUser && blog?.user && loggedInUser.id === blog?.user
+
+  const handleRemoveButtonClick = async (id) => {
+    const removeBlogItem = async (id) => {
+      try {
+        await removeBlog(id)
+        removeBlogMutation(id, queryClient)
+        navigate('/')
+        dispatch({
+          type: 'SET_SUCCESS_NOTIFICATION',
+          payload: `Blog ${blog.title} by ${blog.author} removed`
+        })
+      } catch (error) {
+        console.error('Error removing blog:', error)
+        dispatch({
+          type: 'SET_ERROR_NOTIFICATION',
+          payload: 'Error removing blog'
+        })
+      }
+    }
+
+    if (window.confirm(`Remove blog ${blog.title} by ${blog.author}?`)) {
+      removeBlogItem(id)
+    }
+  }
+
   if (isBlogLoading || isUsersLoading) {
     return <Loading />
   }
@@ -43,10 +81,15 @@ const BlogDetails = () => {
   const user = users.find((user) => user.id === blog.user)
 
   return (
-    <>
+    <div data-testid="blog">
       <h2>{blog.title}</h2>
       <p>
-        <a href={blog.url} target="_blank" rel="noopener noreferrer">
+        <a
+          href={blog.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="blog-url"
+        >
           {blog.url}
         </a>
       </p>
@@ -54,9 +97,24 @@ const BlogDetails = () => {
         {blog.likes} likes{' '}
         <button onClick={() => handleLike(blog)}>like</button>
       </p>
-      <p>added by {user ? user.name : 'Unknown'}</p>
-    </>
+      <p data-testid="blog-username">added by {user ? user.name : 'Unknown'}</p>
+      {showRemoveButton && (
+        <button
+          data-testid="remove-button"
+          onClick={() => handleRemoveButtonClick(blog.id)}
+          style={{
+            marginBottom: '8px'
+          }}
+        >
+          remove
+        </button>
+      )}
+    </div>
   )
+}
+
+propTypes.BlogDetails = {
+  loggedInUser: propTypes.object.isRequired
 }
 
 export default BlogDetails
