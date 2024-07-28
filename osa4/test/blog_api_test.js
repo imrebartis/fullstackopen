@@ -12,7 +12,13 @@ const helper = require('./test_helper')
 const User = require('../models/user')
 const Blog = require('../models/blog')
 
-const { newBlog, newBlogWithNoLikes, blogWithNoTitle, blogWithNoUrl, blogWithLikesThatAreNotNumbers } = require('../utils/blogLists')
+const {
+  newBlog,
+  newBlogWithNoLikes,
+  blogWithNoTitle,
+  blogWithNoUrl,
+  blogWithLikesThatAreNotNumbers,
+} = require('../utils/blogLists')
 
 beforeEach(async () => {
   await Blog.deleteMany({})
@@ -69,22 +75,26 @@ describe('post blog', () => {
   })
 
   test('should return 401 Unauthorized if token is missing', async () => {
-    const response = await agent
-      .post('/api/blogs')
-      .send(newBlog)
+    const response = await agent.post('/api/blogs').send(newBlog)
 
     assert.strictEqual(response.status, 401)
   })
 
   test('MongoDB assigns an id property when a blog is added', async () => {
-
     const returnedObject = await agent
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
       .send(newBlog)
 
-    assert.ok(returnedObject.body.hasOwnProperty('id'), 'The object does not have an id property')
-    assert.strictEqual(typeof returnedObject.body.id, 'string', 'the id is not a string')
+    assert.ok(
+      Object.prototype.hasOwnProperty.call(returnedObject.body, 'id'),
+      'The object does not have an id property'
+    )
+    assert.strictEqual(
+      typeof returnedObject.body.id,
+      'string',
+      'the id is not a string'
+    )
   })
 
   test('the number of blogs increases by one after a new blog is posted', async () => {
@@ -104,8 +114,7 @@ describe('post blog', () => {
     assert.strictEqual(endLength, startLength + 1)
   })
 
-  test('the posted blog\'s content is correct', async () => {
-
+  test("the posted blog's content is correct", async () => {
     const returnedObject = await agent
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
@@ -118,7 +127,6 @@ describe('post blog', () => {
   })
 
   test('a blog with no likes set has 0 likes', async () => {
-
     const returnedObject = await agent
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
@@ -138,24 +146,28 @@ describe('post blog', () => {
   })
 
   test('blogs with no title cannot be posted', async () => {
-
     const returnedObject = await agent
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
       .send(blogWithNoTitle)
 
-    assert.strictEqual(returnedObject.body.error, 'title and url are required fields')
+    assert.strictEqual(
+      returnedObject.body.error,
+      'title and url are required fields'
+    )
     assert.strictEqual(returnedObject.status, 400)
   })
 
   test('blogs with no url cannot be posted', async () => {
-
     const returnedObject = await agent
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
       .send(blogWithNoUrl)
 
-    assert.strictEqual(returnedObject.body.error, 'title and url are required fields')
+    assert.strictEqual(
+      returnedObject.body.error,
+      'title and url are required fields'
+    )
     assert.strictEqual(returnedObject.status, 400)
   })
 })
@@ -193,7 +205,6 @@ describe('delete blog', () => {
   })
 
   test('if blog id is correct, the blog is deleted', async () => {
-
     const createdBlog = await agent
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
@@ -206,7 +217,7 @@ describe('delete blog', () => {
     assert.strictEqual(deleteResponse.status, 204)
 
     const response = await api.get('/api/blogs')
-    const ids = response.body.map(blog => blog.id)
+    const ids = response.body.map((blog) => blog.id)
     assert.ok(!ids.includes(createdBlog.body.id))
   })
 
@@ -252,7 +263,6 @@ describe('update blog', () => {
   })
 
   test('if blog id is correct, the blog is updated', async () => {
-
     const createdBlog = await agent
       .post('/api/blogs')
       .set('Authorization', `Bearer ${token}`)
@@ -260,9 +270,14 @@ describe('update blog', () => {
 
     const updatedBlog = { ...newBlog, likes: 1 }
 
-    await api.patch(`/api/blogs/${createdBlog.body.id}`).expect(200).send(updatedBlog)
+    await api
+      .patch(`/api/blogs/${createdBlog.body.id}`)
+      .expect(200)
+      .send(updatedBlog)
 
-    const response = await api.get(`/api/blogs/${createdBlog.body.id}`).send(newBlog)
+    const response = await api
+      .get(`/api/blogs/${createdBlog.body.id}`)
+      .send(newBlog)
     assert.strictEqual(response.body.likes, updatedBlog.likes)
   })
 
@@ -270,12 +285,18 @@ describe('update blog', () => {
     const createdBlog = await api.post('/api/blogs').send(newBlog)
 
     const updatedBlog = { ...newBlog, likes: '2' }
-    await api.patch(`/api/blogs/${createdBlog.body.id}`).send(updatedBlog).expect(400)
+    await api
+      .patch(`/api/blogs/${createdBlog.body.id}`)
+      .send(updatedBlog)
+      .expect(400)
   })
 
   test('if blog id is incorrect, the response is a 404 error', async () => {
     const updatedBlog = { ...newBlog, likes: 2 }
-    await api.patch('/api/blogs/60d6c47e3cf8b1984ec2f3de').send(updatedBlog).expect(404)
+    await api
+      .patch('/api/blogs/60d6c47e3cf8b1984ec2f3de')
+      .send(updatedBlog)
+      .expect(404)
   })
 })
 
@@ -295,7 +316,7 @@ describe('when there is initially one user in the db', () => {
     const newUser = {
       username: 'testuser',
       name: 'Test User',
-      password: 'password123'
+      password: 'password123',
     }
 
     await api
@@ -307,7 +328,7 @@ describe('when there is initially one user in the db', () => {
     const usersAtEnd = await helper.usersInDb()
     assert.strictEqual(usersAtEnd.length, usersAtStart.length + 1)
 
-    const usernames = usersAtEnd.map(u => u.username)
+    const usernames = usersAtEnd.map((u) => u.username)
     assert(usernames.includes(newUser.username))
   })
 
@@ -317,7 +338,7 @@ describe('when there is initially one user in the db', () => {
     const newUser = {
       username: 'root',
       name: 'Superuser',
-      password: 'salainen'
+      password: 'salainen',
     }
 
     const result = await api
@@ -337,18 +358,21 @@ describe('when there is initially one user in the db', () => {
 
     const newUser = {
       name: 'missingUsername',
-      password: 'salainen'
+      password: 'salainen',
     }
 
     const result = await api.post('/api/users').send(newUser)
 
-    assert.strictEqual(result.body.error, 'username, name and password must be provided')
+    assert.strictEqual(
+      result.body.error,
+      'username, name and password must be provided'
+    )
     assert.strictEqual(result.status, 400)
 
     const usersAtEnd = await helper.usersInDb()
     assert.strictEqual(usersAtEnd.length, usersAtStart.length)
 
-    const names = usersAtEnd.map(u => u.name)
+    const names = usersAtEnd.map((u) => u.name)
     assert(!names.includes(newUser.name))
   })
 
@@ -357,18 +381,21 @@ describe('when there is initially one user in the db', () => {
 
     const newUser = {
       username: 'missingName',
-      password: 'salainen'
+      password: 'salainen',
     }
 
     const result = await api.post('/api/users').send(newUser)
 
-    assert.strictEqual(result.body.error, 'username, name and password must be provided')
+    assert.strictEqual(
+      result.body.error,
+      'username, name and password must be provided'
+    )
     assert.strictEqual(result.status, 400)
 
     const usersAtEnd = await helper.usersInDb()
     assert.strictEqual(usersAtEnd.length, usersAtStart.length)
 
-    const usernames = usersAtEnd.map(u => u.username)
+    const usernames = usersAtEnd.map((u) => u.username)
     assert(!usernames.includes(newUser.username))
   })
 
@@ -377,18 +404,21 @@ describe('when there is initially one user in the db', () => {
 
     const newUser = {
       username: 'missingPassword',
-      name: 'Superuser'
+      name: 'Superuser',
     }
 
     const result = await api.post('/api/users').send(newUser)
 
-    assert.strictEqual(result.body.error, 'username, name and password must be provided')
+    assert.strictEqual(
+      result.body.error,
+      'username, name and password must be provided'
+    )
     assert.strictEqual(result.status, 400)
 
     const usersAtEnd = await helper.usersInDb()
     assert.strictEqual(usersAtEnd.length, usersAtStart.length)
 
-    const usernames = usersAtEnd.map(u => u.username)
+    const usernames = usersAtEnd.map((u) => u.username)
     assert(!usernames.includes(newUser.username))
   })
 
@@ -398,22 +428,24 @@ describe('when there is initially one user in the db', () => {
     const newUser = {
       username: 'passwordTooShort',
       name: 'Superuser',
-      password: '12'
+      password: '12',
     }
 
     const result = await api.post('/api/users').send(newUser)
 
-    assert.strictEqual(result.body.error, 'password must be at least 3 characters long')
+    assert.strictEqual(
+      result.body.error,
+      'password must be at least 3 characters long'
+    )
     assert.strictEqual(result.status, 400)
 
     const usersAtEnd = await helper.usersInDb()
     assert.strictEqual(usersAtEnd.length, usersAtStart.length)
 
-    const usernames = usersAtEnd.map(u => u.username)
+    const usernames = usersAtEnd.map((u) => u.username)
     assert(!usernames.includes(newUser.username))
   })
 })
-
 
 after(async () => {
   await mongoose.connection.close()

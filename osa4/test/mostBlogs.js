@@ -1,10 +1,13 @@
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
-const { listWithNoBlogs, listWithOneBlog, listWithSeveralBlogs } = require('../utils/blogLists')
+const {
+  listWithNoBlogs,
+  listWithOneBlog,
+  listWithSeveralBlogs,
+} = require('../utils/blogLists')
 
 describe('most blogs', () => {
-
   test('of empty list is null', () => {
     const result = listHelper.mostBlogs(listWithNoBlogs)
     assert.strictEqual(result, null)
@@ -14,7 +17,7 @@ describe('most blogs', () => {
     const result = listHelper.mostBlogs(listWithOneBlog)
     assert.deepStrictEqual(result, {
       author: 'Edsger W. Dijkstra',
-      blogs: 1
+      blogs: 1,
     })
   })
 
@@ -22,7 +25,7 @@ describe('most blogs', () => {
     const result = listHelper.mostBlogs(listWithSeveralBlogs)
     assert.deepStrictEqual(result, {
       author: 'Edsger W. Dijkstra',
-      blogs: 3
+      blogs: 3,
     })
   })
 })

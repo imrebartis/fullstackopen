@@ -1,5 +1,5 @@
 import { useRef } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { useNotificationDispatch } from '../NotificationContext'
 import { getBlogs } from '../services/blogs'
 import Togglable from './Togglable'
@@ -17,10 +17,8 @@ const useBlogs = () => {
   })
 }
 
-const BlogList = () => {
+const BlogsList = () => {
   const blogFormRef = useRef()
-  const queryClient = useQueryClient()
-  const dispatch = useNotificationDispatch()
 
   const { data: blogs, isLoading, isError } = useBlogs()
 
@@ -42,4 +40,4 @@ const BlogList = () => {
   )
 }
 
-export default BlogList
+export default BlogsList

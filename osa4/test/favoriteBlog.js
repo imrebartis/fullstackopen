@@ -1,10 +1,13 @@
 const { test, describe } = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
-const { listWithNoBlogs, listWithOneBlog, listWithSeveralBlogs } = require('../utils/blogLists')
+const {
+  listWithNoBlogs,
+  listWithOneBlog,
+  listWithSeveralBlogs,
+} = require('../utils/blogLists')
 
 describe('favorite blog', () => {
-
   test('of empty list is null', () => {
     const result = listHelper.favoriteBlog(listWithNoBlogs)
     assert.strictEqual(result, null)
@@ -15,7 +18,7 @@ describe('favorite blog', () => {
     assert.deepStrictEqual(result, {
       title: 'Go To Statement Considered Harmful',
       author: 'Edsger W. Dijkstra',
-      likes: 5
+      likes: 5,
     })
   })
 
@@ -24,8 +27,7 @@ describe('favorite blog', () => {
     assert.deepStrictEqual(result, {
       title: 'Canonical string reduction 2',
       author: 'Edsger W. Dijkstra',
-      likes: 12
+      likes: 12,
     })
   })
-
 })

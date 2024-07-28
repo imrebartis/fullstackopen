@@ -8,7 +8,7 @@ import { NotificationContextProvider } from '../NotificationContext'
 import { getBlog, getBlogs } from '../services/blogs'
 import { getUsers } from '../services/users'
 import BlogDetails from './BlogDetails'
-import BlogList from './BlogList'
+import BlogsList from './BlogsList'
 import BlogForm from './BlogForm'
 import Blog from './Blog'
 
@@ -43,7 +43,7 @@ const renderWithProviders = (ui, { route = '/' } = {}) => {
       <QueryClientProvider client={queryClient}>
         <MemoryRouter initialEntries={[route]}>
           <Routes>
-            <Route path="/" element={<BlogList />} />
+            <Route path="/" element={<BlogsList />} />
             <Route
               path="/blogs/:id"
               element={<BlogDetails loggedInUser={{ id: '1' }} />}
@@ -55,10 +55,10 @@ const renderWithProviders = (ui, { route = '/' } = {}) => {
   )
 }
 
-const setupBlogList = (blogs) => {
+const setupBlogsList = (blogs) => {
   getBlogs.mockResolvedValue(blogs)
 
-  renderWithProviders(<BlogList />)
+  renderWithProviders(<BlogsList />)
 }
 
 const setupBlogDetails = (blog, users) => {
@@ -82,7 +82,7 @@ test('renders blog title and author', async () => {
     }
   ]
 
-  setupBlogList(blogs)
+  setupBlogsList(blogs)
 
   await waitFor(() => {
     expect(screen.getByText('Test Blog Test Author')).toBeInTheDocument()

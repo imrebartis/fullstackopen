@@ -12,7 +12,7 @@ import {
 import UserDetails from './components/UserDetails'
 import BlogDetails from './components/BlogDetails'
 import Users from './components/Users'
-import BlogList from './components/BlogList'
+import BlogsList from './components/BlogsList'
 import './index.css'
 import Menu from './components/Menu'
 
@@ -97,13 +97,13 @@ const App = () => {
   return (
     <div>
       <Menu user={user} handleLogout={handleLogout} />
-      <h2>blogs</h2>
+      <h1>Blog App</h1>
       {notification && <Notification message={notification} />}
       <Routes>
         <Route path="users/:id" element={<UserDetails />} />
         <Route path="blogs/:id" element={<BlogDetails loggedInUser={user} />} />
         <Route path="users" element={<Users />} />
-        <Route path="*" element={<BlogList />} />
+        <Route path="*" element={<BlogsList />} />
       </Routes>
     </div>
   )

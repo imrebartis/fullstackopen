@@ -7,6 +7,7 @@ import { useNotificationDispatch } from '../NotificationContext'
 import Loading from './Loading'
 import Error from './Error'
 import useHandleLike from '../hooks/useHandleLike'
+import CommentsList from './CommentsList'
 
 const removeBlogMutation = (id, queryClient) => {
   return queryClient.setQueryData(['blogs'], (oldBlogs) =>
@@ -109,6 +110,7 @@ const BlogDetails = ({ loggedInUser }) => {
           remove
         </button>
       )}
+      <CommentsList blog={blog} />
     </div>
   )
 }
