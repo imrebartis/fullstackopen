@@ -1,8 +1,8 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { useNotificationDispatch } from '../NotificationContext'
-import { createBlog } from '../services/blogs'
+import { useNotificationDispatch } from '../../NotificationContext'
+import { createBlog } from '../../services/blogs'
 
 const BlogForm = ({ visible, blogFormRef }) => {
   const { register, handleSubmit, reset } = useForm()

@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { getUser } from '../services/users'
-import Loading from './Loading'
-import Error from './Error'
+import { getUser } from '../../services/users'
+import Loading from '../Loading'
+import Error from '../Error'
 
 const UserDetails = () => {
   const { id } = useParams()

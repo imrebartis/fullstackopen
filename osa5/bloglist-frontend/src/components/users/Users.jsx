@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
-import { getUsers } from '../services/users'
+import { getUsers } from '../../services/users'
 import User from './User'
-import Loading from './Loading'
-import Error from './Error'
+import Loading from '../Loading'
+import Error from '../Error'
 
 const useUsers = () => {
   return useQuery({

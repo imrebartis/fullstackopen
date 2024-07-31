@@ -9,10 +9,10 @@ import {
   useNotificationValue,
   useNotificationDispatch
 } from './NotificationContext'
-import UserDetails from './components/UserDetails'
-import BlogDetails from './components/BlogDetails'
-import Users from './components/Users'
-import BlogsList from './components/BlogsList'
+import UserDetails from './components/users/UserDetails'
+import BlogDetails from './components/blogs/BlogDetails'
+import Users from './components/users/Users'
+import BlogsList from './components/blogs/BlogsList'
 import './index.css'
 import Menu from './components/Menu'
 

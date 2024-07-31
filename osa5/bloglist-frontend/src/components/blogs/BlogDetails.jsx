@@ -1,13 +1,13 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import propTypes from 'prop-types'
-import { getBlog, removeBlog } from '../services/blogs'
-import { getUsers } from '../services/users'
-import { useNotificationDispatch } from '../NotificationContext'
-import Loading from './Loading'
-import Error from './Error'
-import useHandleLike from '../hooks/useHandleLike'
-import CommentsList from './CommentsList'
+import { getBlog, removeBlog } from '../../services/blogs'
+import { getUsers } from '../../services/users'
+import { useNotificationDispatch } from '../../NotificationContext'
+import Loading from '../Loading'
+import Error from '../Error'
+import useHandleLike from '../../hooks/useHandleLike'
+import CommentsList from '../comments/CommentsList'
 
 const removeBlogMutation = (id, queryClient) => {
   return queryClient.setQueryData(['blogs'], (oldBlogs) =>

@@ -1,12 +1,26 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useNotificationDispatch } from '../NotificationContext'
-import { createComment } from '../services/comments'
+import { useNotificationDispatch } from '../../NotificationContext'
+import { createComment } from '../../services/comments'
 import CommentForm from './CommentForm'
+import Loading from '../Loading'
+import Error from '../Error'
+import Comment from './Comment'
 
 const CommentsList = ({ blog }) => {
   const dispatch = useNotificationDispatch()
   const queryClient = useQueryClient()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    if (blog.comments) {
+      setLoading(false)
+    } else {
+      setLoading(false)
+      setError('Failed to load comments')
+    }
+  }, [blog.comments])
 
   const newCommentMutation = useMutation({
     mutationFn: createComment,
@@ -51,13 +65,12 @@ const CommentsList = ({ blog }) => {
     }
   }
 
-  if (!blog.comments) {
-    return (
-      <div>
-        <h3>Comments</h3>
-        <p>No comments added yet</p>
-      </div>
-    )
+  if (loading) {
+    return <Loading />
+  }
+
+  if (error) {
+    return <Error message={error} />
   }
 
   return (
@@ -69,7 +82,7 @@ const CommentsList = ({ blog }) => {
       ) : (
         <ul>
           {blog.comments.map((comment, index) => (
-            <li key={index}>{comment.content}</li>
+            <Comment key={index} content={comment.content} />
           ))}
         </ul>
       )}
