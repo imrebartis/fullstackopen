@@ -1,12 +1,13 @@
 import PropTypes from 'prop-types'
+import { Alert } from '@mui/material'
 
-const Message = ({ message, className }) => {
-  return <div className={`notification ${className}`}>{message}</div>
+const Message = ({ message, severity }) => {
+  return <Alert severity={severity}>{message}</Alert>
 }
 
-PropTypes.Message = {
+Message.propTypes = {
   message: PropTypes.string.isRequired,
-  className: PropTypes.string.isRequired,
+  severity: PropTypes.oneOf(['success', 'error']).isRequired
 }
 
 export default Message

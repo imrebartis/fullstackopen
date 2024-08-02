@@ -1,5 +1,6 @@
 import PropTypes from 'prop-types'
 import { useLoginValue, useLoginDispatch } from '../LoginContext'
+import { TextField, Button } from '@mui/material'
 
 const LoginForm = ({ handleLogin }) => {
   const { username, password } = useLoginValue()
@@ -8,28 +9,32 @@ const LoginForm = ({ handleLogin }) => {
   return (
     <form onSubmit={handleLogin}>
       <div>
-        username
-        <input
+        <TextField
+          label="Username"
           type="text"
           data-testid="username"
           value={username}
           name="Username"
           onChange={({ target }) => setUsername(target.value)}
-          style={{ marginLeft: '8px', marginBottom: '8px' }}
+          variant="outlined"
+          margin="normal"
         />
       </div>
       <div>
-        password
-        <input
+        <TextField
+          label="Password"
           type="password"
           data-testid="password"
           value={password}
           name="Password"
           onChange={({ target }) => setPassword(target.value)}
-          style={{ marginLeft: '8px', marginBottom: '8px' }}
+          variant="outlined"
+          margin="normal"
         />
       </div>
-      <button type="submit">log in</button>
+      <Button variant="contained" color="primary" type="submit">
+        log in
+      </Button>
     </form>
   )
 }

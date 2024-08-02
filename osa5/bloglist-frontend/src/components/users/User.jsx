@@ -1,14 +1,15 @@
+import { TableCell } from '@mui/material'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
 const User = ({ user }) => {
   return (
-    <tr>
-      <td>
+    <>
+      <TableCell>
         <Link to={`/users/${user.id}`}>{user.name}</Link>
-      </td>
-      <td>{user.blogs.length}</td>
-    </tr>
+      </TableCell>
+      <TableCell>{user.blogs.length}</TableCell>
+    </>
   )
 }
 

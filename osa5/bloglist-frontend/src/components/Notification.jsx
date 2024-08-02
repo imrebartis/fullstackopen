@@ -6,10 +6,10 @@ const Notification = ({ message }) => {
     return null
   }
 
-  const className =
+  const severity =
     message.type === 'SET_SUCCESS_NOTIFICATION' ? 'success' : 'error'
 
-  return <Message className={className} message={message.payload} />
+  return <Message message={message.payload} severity={severity} />
 }
 
 Notification.propTypes = {

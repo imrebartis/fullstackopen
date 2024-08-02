@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import propTypes from 'prop-types'
+import { Button } from '@mui/material'
 import { getBlog, removeBlog } from '../../services/blogs'
 import { getUsers } from '../../services/users'
 import { useNotificationDispatch } from '../../NotificationContext'
@@ -96,11 +97,19 @@ const BlogDetails = ({ loggedInUser }) => {
       </p>
       <p>
         {blog.likes} likes{' '}
-        <button onClick={() => handleLike(blog)}>like</button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => handleLike(blog)}
+        >
+          like
+        </Button>
       </p>
       <p data-testid="blog-username">added by {user ? user.name : 'Unknown'}</p>
       {showRemoveButton && (
-        <button
+        <Button
+          variant="contained"
+          color="error"
           data-testid="remove-button"
           onClick={() => handleRemoveButtonClick(blog.id)}
           style={{
@@ -108,7 +117,7 @@ const BlogDetails = ({ loggedInUser }) => {
           }}
         >
           remove
-        </button>
+        </Button>
       )}
       <CommentsList blog={blog} />
     </div>

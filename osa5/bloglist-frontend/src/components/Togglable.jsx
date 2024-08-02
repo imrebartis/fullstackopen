@@ -1,5 +1,6 @@
 import { useState, useImperativeHandle, forwardRef, cloneElement } from 'react'
 import PropTypes from 'prop-types'
+import { Button } from '@mui/material'
 
 const Togglable = forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false)
@@ -18,13 +19,17 @@ const Togglable = forwardRef((props, ref) => {
   })
 
   return (
-    <div style={{ marginBottom: '8px' }}>
+    <div style={{ marginBottom: '36px' }}>
       <div style={hideWhenVisible}>
-        <button onClick={toggleVisibility}>{props.buttonLabel}</button>
+        <Button variant="contained" color="primary" onClick={toggleVisibility}>
+          {props.buttonLabel}
+        </Button>
       </div>
       <div style={showWhenVisible}>
         {cloneElement(props.children, { visible: visible })}
-        <button onClick={toggleVisibility}>cancel</button>
+        <Button variant="contained" color="error" onClick={toggleVisibility}>
+          cancel
+        </Button>
       </div>
     </div>
   )

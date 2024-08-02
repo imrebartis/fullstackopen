@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { List, ListItem } from '@mui/material'
 import { useNotificationDispatch } from '../../NotificationContext'
 import { createComment } from '../../services/comments'
 import CommentForm from './CommentForm'
@@ -80,11 +81,13 @@ const CommentsList = ({ blog }) => {
       {blog.comments.length === 0 ? (
         <p>No comments added yet</p>
       ) : (
-        <ul>
+        <List>
           {blog.comments.map((comment, index) => (
-            <Comment key={index} content={comment.content} />
+            <ListItem key={index}>
+              <Comment content={comment.content} />
+            </ListItem>
           ))}
-        </ul>
+        </List>
       )}
     </div>
   )

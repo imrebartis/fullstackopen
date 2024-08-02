@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
+import { Button, TextField } from '@mui/material'
 import { useNotificationDispatch } from '../../NotificationContext'
 import { createBlog } from '../../services/blogs'
 
@@ -77,8 +78,8 @@ const BlogForm = ({ visible, blogFormRef }) => {
       <div
         style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
       >
-        title
-        <input
+        <TextField
+          label="Title"
           {...register('title')}
           type="text"
           style={{ marginLeft: '8px' }}
@@ -89,8 +90,8 @@ const BlogForm = ({ visible, blogFormRef }) => {
       <div
         style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
       >
-        author
-        <input
+        <TextField
+          label="Author"
           {...register('author')}
           type="text"
           style={{ marginLeft: '8px' }}
@@ -101,8 +102,8 @@ const BlogForm = ({ visible, blogFormRef }) => {
       <div
         style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}
       >
-        url:
-        <input
+        <TextField
+          label="Url"
           {...register('url')}
           type="text"
           style={{ marginLeft: '8px' }}
@@ -110,9 +111,14 @@ const BlogForm = ({ visible, blogFormRef }) => {
           autoComplete="off"
         />
       </div>
-      <button data-testid="create-button" type="submit">
+      <Button
+        variant="contained"
+        color="primary"
+        data-testid="create-button"
+        type="submit"
+      >
         create
-      </button>
+      </Button>
     </form>
   )
 }

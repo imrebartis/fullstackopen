@@ -1,5 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
+import { List, ListItem, ListItemText, ListItemIcon } from '@mui/material'
+import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord'
 import { getUser } from '../../services/users'
 import Loading from '../Loading'
 import Error from '../Error'
@@ -35,11 +37,16 @@ const UserDetails = () => {
       {user.blogs.length === 0 ? (
         <p>No blogs added yet</p>
       ) : (
-        <ul>
+        <List>
           {user.blogs.map((blog) => (
-            <li key={blog.id}>{blog.title}</li>
+            <ListItem key={blog.id}>
+              <ListItemIcon>
+                <FiberManualRecordIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>{blog.title}</ListItemText>
+            </ListItem>
           ))}
-        </ul>
+        </List>
       )}
     </div>
   )

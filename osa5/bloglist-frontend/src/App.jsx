@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Routes, Route } from 'react-router-dom'
+import { Container } from '@mui/material'
 import { useLoginValue, useLoginDispatch } from './LoginContext'
 import blogService from './services/blogs'
 import loginService from './services/login'
@@ -86,16 +87,16 @@ const App = () => {
 
   if (user === null) {
     return (
-      <div>
-        <h2>Log in to application</h2>
+      <Container>
+        <h1>Log in</h1>
         {notification && <Notification message={notification} />}
         <LoginForm handleLogin={handleLogin} />
-      </div>
+      </Container>
     )
   }
 
   return (
-    <div>
+    <Container>
       <Menu user={user} handleLogout={handleLogout} />
       <h1>Blog App</h1>
       {notification && <Notification message={notification} />}
@@ -105,7 +106,7 @@ const App = () => {
         <Route path="users" element={<Users />} />
         <Route path="*" element={<BlogsList />} />
       </Routes>
-    </div>
+    </Container>
   )
 }
 

@@ -3,6 +3,15 @@ import { getUsers } from '../../services/users'
 import User from './User'
 import Loading from '../Loading'
 import Error from '../Error'
+import {
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody
+} from '@mui/material'
 
 const useUsers = () => {
   return useQuery({
@@ -20,19 +29,35 @@ const Users = () => {
     <div>
       <h2>Users</h2>
       {!isLoading && !isError && (
-        <table>
-          <thead>
-            <tr>
-              <th></th>
-              <th>blogs created</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <User key={user.id} user={user} />
-            ))}
-          </tbody>
-        </table>
+        <TableContainer
+          component={Paper}
+          sx={{
+            width: {
+              xs: '90vw',
+              sm: '80vw',
+              md: '70vw',
+              lg: '60vw',
+              xl: '50vw'
+            },
+            margin: '0 auto'
+          }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ fontWeight: 'bold' }}>user name</TableCell>
+                <TableCell sx={{ fontWeight: 'bold' }}>blogs created</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {users.map((user) => (
+                <TableRow key={user.id} sx={{ borderBottom: '1px solid #ccc' }}>
+                  <User user={user} />
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       )}
       {isLoading && <Loading />}
       {isError && (

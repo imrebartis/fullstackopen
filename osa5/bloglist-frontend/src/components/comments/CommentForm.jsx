@@ -1,7 +1,18 @@
 import React, { useState } from 'react'
+import { Button, TextField } from '@mui/material'
 
 const CommentForm = ({ onAddComment }) => {
   const [comment, setComment] = useState('')
+
+  const inputStyle = {
+    marginRight: '8px'
+  }
+
+  const inputPropsStyle = {
+    height: '40px',
+    padding: '0 14px',
+    boxSizing: 'border-box'
+  }
 
   const handleInputChange = (event) => {
     setComment(event.target.value)
@@ -19,8 +30,18 @@ const CommentForm = ({ onAddComment }) => {
 
   return (
     <div>
-      <input type="text" value={comment} onChange={handleInputChange} />
-      <button onClick={handleSubmit}>add comment</button>
+      <TextField
+        sx={inputStyle}
+        InputProps={{
+          style: inputPropsStyle
+        }}
+        type="text"
+        value={comment}
+        onChange={handleInputChange}
+      />
+      <Button variant="contained" color="primary" onClick={handleSubmit}>
+        add comment
+      </Button>
     </div>
   )
 }
