@@ -1,7 +1,13 @@
 const { ApolloServer } = require('@apollo/server')
-const { startStandaloneServer } = require('@apollo/server/standalone')
+const {
+  ApolloServerPluginDrainHttpServer
+} = require('@apollo/server/plugin/drainHttpServer')
+const { expressMiddleware } = require('@apollo/server/express4')
 const { v1: uuid } = require('uuid')
 const { GraphQLError } = require('graphql')
+const cors = require('cors')
+const express = require('express')
+const http = require('http')
 
 let authors = [
   {
@@ -194,13 +200,26 @@ const resolvers = {
   }
 }
 
+const app = express()
+const httpServer = http.createServer(app)
+
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
 })
 
-startStandaloneServer(server, {
-  listen: { port: 4000 }
-}).then(({ url }) => {
-  console.log(`Server ready at ${url}`)
+server.start().then(() => {
+  app.use(
+    '/graphql',
+    cors({
+      origin: 'http://localhost:5173'
+    }),
+    express.json(),
+    expressMiddleware(server)
+  )
+
+  app.listen({ port: 4000 }, () => {
+    console.log(`Server ready at http://localhost:4000/graphql`)
+  })
 })
