@@ -1,26 +1,11 @@
 import { useQuery } from '@apollo/client'
-import { useEffect, useState } from 'react'
 import { ALL_AUTHORS } from '../queries'
 import Notify from './Notify'
+import useErrorNotification from '../hooks/useErrorNotification'
 
 const Authors = ({ show }) => {
   const result = useQuery(ALL_AUTHORS)
-  const [errorMessage, setErrorMessage] = useState(null)
-
-  const notify = (message) => {
-    setErrorMessage(message)
-    setTimeout(() => {
-      setErrorMessage(null)
-    }, 10000)
-  }
-
-  useEffect(() => {
-    if (result.error) {
-      console.log('error', result.error)
-      const errorMessage = result.error.message || 'An error occurred'
-      notify(errorMessage)
-    }
-  }, [result.error])
+  const errorMessage = useErrorNotification(result)
 
   if (!show) {
     return null
