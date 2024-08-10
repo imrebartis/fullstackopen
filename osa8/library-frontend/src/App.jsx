@@ -9,7 +9,7 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState(null)
 
   const notify = (message) => {
-    setErrorMessage(message)
+    setErrorMessage(message || 'An unexpected error occurred')
     setTimeout(() => {
       setErrorMessage(null)
     }, 10000)
@@ -25,7 +25,7 @@ const App = () => {
 
       <Notify errorMessage={errorMessage} />
 
-      <Authors show={page === 'authors'} />
+      <Authors show={page === 'authors'} setError={notify} />
 
       <Books show={page === 'books'} />
 
