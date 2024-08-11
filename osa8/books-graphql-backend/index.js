@@ -7,11 +7,13 @@ const { GraphQLError } = require('graphql')
 const cors = require('cors')
 const express = require('express')
 const http = require('http')
+const jwt = require('jsonwebtoken')
 
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 const Book = require('./models/book')
 const Author = require('./models/author')
+const User = require('./models/user')
 
 require('dotenv').config()
 
@@ -43,26 +45,37 @@ mongoose
  */
 
 const typeDefs = `
-type Book {
-  title: String!
-  published: Int!
-  author: Author!
-  id: ID!
-  genres: [String!]!
-}
+  type Book {
+    title: String!
+    published: Int!
+    author: Author!
+    id: ID!
+    genres: [String!]!
+  }
 
-type Author {
-  name: String!
-  id: ID!
-  born: Int
-  bookCount: Int
-}
+  type Author {
+    name: String!
+    id: ID!
+    born: Int
+    bookCount: Int
+  }
+
+  type User {
+    username: String!
+    favoriteGenre: String!
+    id: ID!
+  }
+
+  type Token {
+    value: String!
+  }
 
   type Query {
     bookCount: Int!,
     authorCount: Int!,
     allBooks(author: String, genre: String): [Book!]!,
-    allAuthors: [Author!]!
+    allAuthors: [Author!]!,
+    me: User
   }
 
   type Mutation {
@@ -73,10 +86,20 @@ type Author {
       genres: [String!]!
     ): Book!
 
-     editAuthor(
+    editAuthor(
       name: String!
       setBornTo: Int!
     ): Author
+
+    createUser(
+      username: String!
+      favoriteGenre: String!
+    ): User
+
+    login(
+      username: String!
+      password: String!
+    ): Token
   }
 `
 
@@ -127,6 +150,9 @@ const resolvers = {
         ...author,
         id: author._id
       }))
+    },
+    me: (root, args, context) => {
+      return context.currentUser
     }
   },
   Author: {
@@ -134,7 +160,17 @@ const resolvers = {
       Book.collection.countDocuments({ author: parent._id })
   },
   Mutation: {
-    addBook: async (root, args) => {
+    addBook: async (root, args, context) => {
+      const currentUser = context.currentUser
+
+      if (!currentUser) {
+        throw new GraphQLError('You are not authenticated', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+      }
+
       if (args.title.length < 5) {
         throw new GraphQLError('Title must be at least 5 characters long', {
           extensions: {
@@ -176,7 +212,17 @@ const resolvers = {
       await newBook.save()
       return newBook.populate('author')
     },
-    editAuthor: async (root, args) => {
+    editAuthor: async (root, args, context) => {
+      const currentUser = context.currentUser
+
+      if (!currentUser) {
+        throw new GraphQLError('You are not authenticated', {
+          extensions: {
+            code: 'BAD_USER_INPUT'
+          }
+        })
+      }
+
       const author = await Author.findOne({ name: args.name })
       if (!author) {
         throw new GraphQLError('Author not found', {
@@ -190,32 +236,86 @@ const resolvers = {
       author.born = args.setBornTo
       await author.save()
       return author
+    },
+    createUser: async (root, args) => {
+      const user = new User({
+        username: args.username,
+        favoriteGenre: args.favoriteGenre
+      })
+      return user.save().catch((error) => {
+        throw (
+          (new GraphQLError('Creating the user failed'),
+          {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.name,
+              error
+            }
+          })
+        )
+      })
+    },
+    login: async (root, args) => {
+      const user = await User.findOne({ username: args.username })
+
+      if (!user || args.password !== 'secret') {
+        throw new GraphQLError('wrong credentials', {
+          extensions: { code: 'BAD_USER_INPUT' }
+        })
+      }
+
+      const userForToken = {
+        username: user.username,
+        id: user._id
+      }
+
+      return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
     }
   }
 }
 
-const app = express()
-const httpServer = http.createServer(app)
+async function startApolloServer() {
+  const app = express()
+  const httpServer = http.createServer(app)
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
-})
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })]
+  })
 
-server.start().then(() => {
+  await server.start()
+
   app.use(
+    '/graphql',
     cors({
       origin: 'http://localhost:5173',
       credentials: true
+    }),
+    express.json(),
+    expressMiddleware(server, {
+      context: async ({ req }) => {
+        const auth = req ? req.headers.authorization : null
+        if (auth && auth.startsWith('Bearer ')) {
+          try {
+            const token = auth.substring(7)
+            const decodedToken = jwt.verify(token, process.env.JWT_SECRET, {
+              ignoreExpiration: true
+            })
+            const currentUser = await User.findById(decodedToken.id)
+
+            return { currentUser }
+          } catch (error) {
+            console.error('Error verifying token or fetching user:', error)
+          }
+        }
+        return {}
+      }
     })
   )
 
-  app.use(express.json())
+  await new Promise((resolve) => httpServer.listen({ port: 4000 }, resolve))
+  console.log(`Server ready at http://localhost:4000/graphql`)
+}
 
-  app.use('/graphql', expressMiddleware(server))
-
-  httpServer.listen({ port: 4000 }, () => {
-    console.log(`Server ready at http://localhost:4000/graphql`)
-  })
-})
+startApolloServer()
