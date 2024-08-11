@@ -4,7 +4,7 @@ import { CREATE_BOOK, ALL_BOOKS, ALL_AUTHORS } from '../queries'
 
 const NewBook = ({ show, setError }) => {
   const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
+  const [author, setAuthor] = useState({ name: '' })
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
@@ -29,12 +29,17 @@ const NewBook = ({ show, setError }) => {
     event.preventDefault()
 
     createBook({
-      variables: { title, author, published: Number(published), genres }
+      variables: {
+        title,
+        author: author.name,
+        published: Number(published),
+        genres
+      }
     })
 
     setTitle('')
     setPublished('')
-    setAuthor('')
+    setAuthor({ name: '' })
     setGenres([])
     setGenre('')
   }
@@ -58,8 +63,8 @@ const NewBook = ({ show, setError }) => {
         <div>
           author
           <input
-            value={author}
-            onChange={({ target }) => setAuthor(target.value)}
+            value={author.name}
+            onChange={({ target }) => setAuthor({ name: target.value })}
             required
           />
         </div>
