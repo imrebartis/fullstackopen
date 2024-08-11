@@ -7,7 +7,7 @@ import Notify from './Notify'
 import useErrorNotification from '../hooks/useErrorNotification'
 import { UPDATE_AUTHOR } from '../queries'
 
-const Authors = ({ show, setError }) => {
+const Authors = ({ show, setError, setSuccess }) => {
   const result = useQuery(ALL_AUTHORS)
   const errorMessage = useErrorNotification(result)
   const [selectedAuthor, setSelectedAuthor] = useState(null)
@@ -30,11 +30,16 @@ const Authors = ({ show, setError }) => {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    updateAuthor({
-      variables: { name: selectedAuthor.value, setBornTo: Number(born) }
-    })
-    setSelectedAuthor(null)
-    setBorn('')
+    try {
+      await updateAuthor({
+        variables: { name: selectedAuthor.value, setBornTo: Number(born) }
+      })
+      setSuccess("Author's birthyear updated")
+      setSelectedAuthor(null)
+      setBorn('')
+    } catch (error) {
+      setError(error.message)
+    }
   }
 
   const authorOptions = result.data

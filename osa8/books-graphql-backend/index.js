@@ -135,6 +135,27 @@ const resolvers = {
   },
   Mutation: {
     addBook: async (root, args) => {
+      if (args.title.length < 5) {
+        throw new GraphQLError('Title must be at least 5 characters long', {
+          extensions: {
+            code: 'BAD_USER_INPUT',
+            invalidArgs: args.title
+          }
+        })
+      }
+
+      if (args.author.length < 4) {
+        throw new GraphQLError(
+          'Author name must be at least 4 characters long',
+          {
+            extensions: {
+              code: 'BAD_USER_INPUT',
+              invalidArgs: args.author
+            }
+          }
+        )
+      }
+
       const existingBook = await Book.findOne({ title: args.title })
       if (existingBook) {
         throw new GraphQLError('Title must be unique', {

@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useMutation } from '@apollo/client'
 import { CREATE_BOOK, ALL_BOOKS, ALL_AUTHORS } from '../queries'
 
-const NewBook = ({ show, setError }) => {
+const NewBook = ({ show, setError, setSuccess }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState({ name: '' })
   const [published, setPublished] = useState('')
@@ -18,6 +18,9 @@ const NewBook = ({ show, setError }) => {
       } else {
         setError('An error occurred')
       }
+    },
+    onCompleted: () => {
+      setSuccess('Book added successfully')
     }
   })
 
