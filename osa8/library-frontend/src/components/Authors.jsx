@@ -14,9 +14,19 @@ const Authors = ({ show, setError, setSuccess }) => {
   const [born, setBorn] = useState('')
 
   const [updateAuthor] = useMutation(UPDATE_AUTHOR, {
-    refetchQueries: [{ query: ALL_AUTHORS }],
     onError: (error) => {
       setError(error.message)
+    },
+    update: (cache, response) => {
+      cache.updateQuery({ query: ALL_AUTHORS }, ({ allAuthors }) => {
+        return {
+          allAuthors: allAuthors.map((a) =>
+            a.name === response.data.editAuthor.name
+              ? response.data.editAuthor
+              : a
+          )
+        }
+      })
     }
   })
 
