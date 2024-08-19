@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@apollo/client'
 import { ALL_BOOKS } from '../queries'
+import { cleanGenre } from '../utils/cleanGenres'
 import Notify from './Notify'
 import useErrorNotification from '../hooks/useErrorNotification'
 
@@ -9,12 +10,6 @@ const Books = ({ show }) => {
   const [selectedGenre, setSelectedGenre] = useState(null)
   const result = useQuery(ALL_BOOKS)
   const errorMessage = useErrorNotification(result)
-
-  const cleanGenre = (genre) => {
-    let cleaned = genre.trim()
-    cleaned = cleaned.replace(/^["'](.+(?=["']$))["']$/, '$1')
-    return cleaned.toLowerCase()
-  }
 
   useEffect(() => {
     if (result.data && result.data.allBooks) {
