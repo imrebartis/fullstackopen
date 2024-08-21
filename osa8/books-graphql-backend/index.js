@@ -71,11 +71,12 @@ const typeDefs = `
   }
 
   type Query {
-    bookCount: Int!,
-    authorCount: Int!,
-    allBooks(author: String, genre: String): [Book!]!,
-    allAuthors: [Author!]!,
+    bookCount: Int!
+    authorCount: Int!
+    allBooks(author: String, genre: String): [Book!]!
+    allAuthors: [Author!]!
     me: User
+    allGenres: [String!]!
   }
 
   type Mutation {
@@ -119,11 +120,30 @@ const resolvers = {
         }
       }
 
-      if (args.genres) {
-        filter.genres = { $in: [args.genres] }
+      if (args.genre) {
+        const cleanedGenre = cleanGenre(args.genre)
+        filter.genres = {
+          $elemMatch: {
+            $regex: new RegExp(`\\b${cleanedGenre}\\b`, 'i')
+          }
+        }
       }
 
       return Book.find(filter).populate('author')
+    },
+    allGenres: async () => {
+      const books = await Book.find({}).populate('author')
+      return Array.from(
+        new Set(
+          books.flatMap((book) =>
+            book.genres.flatMap((genre) =>
+              cleanGenre(genre)
+                .split(',')
+                .map((g) => g.trim())
+            )
+          )
+        )
+      )
     },
     allAuthors: async () => {
       const authors = await Author.aggregate([
@@ -272,6 +292,13 @@ const resolvers = {
       return { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
     }
   }
+}
+
+const cleanGenre = (genre) => {
+  let cleaned = genre.trim()
+  cleaned = cleaned.replace(/^['"](.+?)['"]$/, '$1') // Remove surrounding quotes
+  cleaned = cleaned.replace(/['"]/g, '') // Remove any remaining quotes within the string
+  return cleaned.toLowerCase()
 }
 
 async function startApolloServer() {

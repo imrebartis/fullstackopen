@@ -8,13 +8,19 @@ import useErrorNotification from '../hooks/useErrorNotification'
 import { UPDATE_AUTHOR } from '../queries'
 
 const Authors = ({ show, setError, setSuccess }) => {
-  const result = useQuery(ALL_AUTHORS)
+  const result = useQuery(ALL_AUTHORS, {
+    onError: (error) => {
+      console.error('Error fetching authors:', error)
+      setError(error.message)
+    }
+  })
   const errorMessage = useErrorNotification(result)
   const [selectedAuthor, setSelectedAuthor] = useState(null)
   const [born, setBorn] = useState('')
 
   const [updateAuthor] = useMutation(UPDATE_AUTHOR, {
     onError: (error) => {
+      console.error('Error updating author:', error)
       setError(error.message)
     },
     update: (cache, response) => {

@@ -1,55 +1,61 @@
 import { useState, useEffect } from 'react'
 import { useQuery } from '@apollo/client'
-import { ALL_BOOKS } from '../queries'
-import { cleanGenre } from '../utils/cleanGenres'
+import { ALL_BOOKS, ALL_GENRES } from '../queries'
 import Notify from './Notify'
 import useErrorNotification from '../hooks/useErrorNotification'
 
 const Books = ({ show }) => {
-  const [genres, setGenres] = useState([])
   const [selectedGenre, setSelectedGenre] = useState(null)
-  const result = useQuery(ALL_BOOKS)
-  const errorMessage = useErrorNotification(result)
+  const {
+    loading: loadingBooks,
+    data: dataBooks,
+    error: errorBooks,
+    refetch: refetchBooks
+  } = useQuery(ALL_BOOKS, {
+    variables: { genre: selectedGenre },
+    onError: (error) => {
+      console.error('Error fetching books:', error)
+    }
+  })
+  const {
+    loading: loadingGenres,
+    data: dataGenres,
+    error: errorGenres
+  } = useQuery(ALL_GENRES, {
+    onError: (error) => {
+      console.error('Error fetching genres:', error)
+    }
+  })
+  const errorMessage = useErrorNotification({
+    error: errorBooks || errorGenres
+  })
 
   useEffect(() => {
-    if (result.data && result.data.allBooks) {
-      const genresSet = new Set()
-
-      result.data.allBooks.forEach((book) => {
-        book.genres.forEach((genre) => {
-          genre.split(',').forEach((g) => {
-            genresSet.add(cleanGenre(g))
-          })
-        })
-      })
-
-      if (genresSet.size > 0) {
-        setGenres(Array.from(genresSet))
-      }
+    if (show) {
+      setSelectedGenre(null)
+      refetchBooks()
     }
-  }, [result.data])
+  }, [show, refetchBooks])
 
   if (!show) {
     return null
   }
 
-  const filteredBooks = selectedGenre
-    ? result.data.allBooks.filter((book) =>
-        book.genres.some((genre) =>
-          genre
-            .split(',')
-            .some((g) => cleanGenre(g) === selectedGenre.toLowerCase())
-        )
-      )
-    : result.data.allBooks
+  const books = dataBooks?.allBooks || []
+
+  const handleGenreClick = (genre) => {
+    setSelectedGenre(genre)
+  }
 
   return (
     <div>
       <Notify errorMessage={errorMessage} />
       <h2>books</h2>
-      {result.loading && <div>loading...</div>}
-      {!result.loading && !result.data && <div>No data available</div>}
-      {result.data && (
+      {loadingBooks && loadingGenres && <div>loading...</div>}
+      {!loadingBooks && !loadingGenres && books.length === 0 && (
+        <div>No data available</div>
+      )}
+      {books.length > 0 && (
         <table>
           <tbody>
             <tr>
@@ -57,7 +63,7 @@ const Books = ({ show }) => {
               <th>author</th>
               <th>published</th>
             </tr>
-            {filteredBooks.map((b) => (
+            {books.map((b) => (
               <tr key={b.title}>
                 <td>{b.title}</td>
                 <td>{b.author.name}</td>
@@ -67,10 +73,10 @@ const Books = ({ show }) => {
           </tbody>
         </table>
       )}
-      {genres.length > 0 && (
+      {!loadingGenres && dataGenres && dataGenres.allGenres && (
         <div>
-          {genres.map((genre) => (
-            <button key={genre} onClick={() => setSelectedGenre(genre)}>
+          {dataGenres.allGenres.map((genre) => (
+            <button key={genre} onClick={() => handleGenreClick(genre)}>
               {genre}
             </button>
           ))}

@@ -1,6 +1,6 @@
 import { useQuery } from '@apollo/client'
 import { ALL_BOOKS, USER } from '../queries'
-import { cleanGenre } from '../utils/cleanGenres'
+import { cleanGenre } from '../utils/cleanGenre'
 
 const Recommendations = ({ show }) => {
   const { data: userData, loading: userLoading } = useQuery(USER)
