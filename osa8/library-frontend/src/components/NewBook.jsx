@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useMutation } from '@apollo/client'
-import { CREATE_BOOK, ALL_BOOKS, ALL_AUTHORS } from '../queries'
+import { CREATE_BOOK, ALL_BOOKS, ALL_AUTHORS, ALL_GENRES } from '../queries'
 
 const NewBook = ({ show, setError, setSuccess }) => {
   const [title, setTitle] = useState('')
@@ -21,6 +21,20 @@ const NewBook = ({ show, setError, setSuccess }) => {
           }
         }
         return data
+      })
+
+      cache.updateQuery({ query: ALL_GENRES }, (data) => {
+        const newGenres = addedBook.genres.filter(
+          (g) => !data.allGenres.includes(g.toLowerCase())
+        )
+
+        if (newGenres.length === 0) {
+          return data
+        }
+
+        return {
+          allGenres: [...data.allGenres, ...newGenres]
+        }
       })
 
       cache.updateQuery({ query: ALL_AUTHORS }, (data) => {

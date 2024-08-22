@@ -77,7 +77,7 @@ const Books = ({ show }) => {
         <div>
           {dataGenres.allGenres.map((genre) => (
             <button key={genre} onClick={() => handleGenreClick(genre)}>
-              {genre}
+              {genre.toLowerCase()}
             </button>
           ))}
           <button onClick={() => setSelectedGenre(null)}>All genres</button>
