@@ -5,9 +5,13 @@ import {
   InMemoryCache,
   ApolloClient,
   createHttpLink,
-  from
+  from,
+  split
 } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
+import { getMainDefinition } from '@apollo/client/utilities'
+import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
+import { createClient } from 'graphql-ws'
 import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
 import App from './App.jsx'
@@ -26,6 +30,24 @@ const httpLink = createHttpLink({
   uri: 'http://localhost:4000/graphql',
   credentials: 'include'
 })
+
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: 'ws://localhost:4000/graphql'
+  })
+)
+
+const splitLink = split(
+  ({ query }) => {
+    const definition = getMainDefinition(query)
+    return (
+      definition.kind === 'OperationDefinition' &&
+      definition.operation === 'subscription'
+    )
+  },
+  wsLink,
+  from([authLink, httpLink])
+)
 
 const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors)
@@ -46,7 +68,7 @@ const retryLink = new RetryLink({
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: from([errorLink, retryLink, authLink, httpLink]),
+  link: from([errorLink, retryLink, splitLink]),
   defaultOptions: {
     watchQuery: {
       fetchPolicy: 'cache-and-network',
