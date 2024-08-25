@@ -48,7 +48,7 @@ const resolvers = {
       )
     },
     allAuthors: async () => {
-      const authors = await Author.aggregate([
+      const authorsWithBookCounts = await Author.aggregate([
         {
           $lookup: {
             from: 'books',
@@ -64,22 +64,24 @@ const resolvers = {
         },
         {
           $project: {
-            books: 0
+            id: '$_id',
+            name: 1,
+            born: 1,
+            bookCount: 1
           }
         }
       ])
-      return authors.map((author) => ({
-        ...author,
-        id: author._id
-      }))
+
+      return authorsWithBookCounts
     },
     me: (root, args, context) => {
       return context.currentUser
     }
   },
   Author: {
-    bookCount: (parent) =>
-      Book.collection.countDocuments({ author: parent._id })
+    bookCount: (parent) => {
+      return parent.bookCount
+    }
   },
   Mutation: {
     addBook: async (root, args, context) => {
@@ -160,7 +162,14 @@ const resolvers = {
 
       author.born = args.setBornTo
       await author.save()
-      return author
+
+      const bookCount = await Book.countDocuments({ author: author._id })
+
+      return {
+        id: author._id,
+        ...author.toObject(),
+        bookCount
+      }
     },
     createUser: async (root, args) => {
       const user = new User({
