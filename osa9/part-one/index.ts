@@ -1,15 +1,13 @@
-import { calculateBMI } from './bmiCalculator'
-import { calculateExercises } from './exerciseCalculator'
+import express from 'express'
 
-// const weight = 96
-// const height = 2
+const app = express()
 
-// const bmiCategory = calculateBMI(weight, height)
-// console.log(`Your BMI category is ${bmiCategory}`)
+app.get('/hello', (_req, res) => {
+  res.send('Hello Full Stack!')
+})
 
-const trainingHours = [3, 0, 2, 4.5, 0, 3, 1]
-const target = 2
+const PORT = 3003
 
-const exerciseResults = calculateExercises(trainingHours, target)
-
-console.log(exerciseResults)
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`)
+})
