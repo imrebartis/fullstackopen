@@ -2,10 +2,10 @@
   "name": "part-one",
   "version": "1.0.0",
   "description": "",
-  "main": "index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "calculateExercises": "ts-node index.ts"
+    "calculateExercises": "ts-node exerciseCalculator.ts",
+    "calculateBmi": "ts-node bmiCalculator.ts"
   },
   "author": "",
   "license": "ISC",

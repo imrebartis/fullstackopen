@@ -1,3 +1,5 @@
+import { parseArguments, validatePositiveNumbers } from './cliHelper'
+
 interface Result {
   periodLength: number
   trainingDays: number
@@ -44,4 +46,25 @@ export function calculateExercises(
     target,
     average
   }
+}
+
+export function runCLI() {
+  const args = process.argv.slice(2)
+  const numbers = parseArguments(args, 2)
+
+  const target = numbers[0]
+  const trainingHours = numbers.slice(1)
+
+  // NB: You have to use the -- flag, i.e. sth like `npm run calculateExercises -- -2 1 3 4 5 6 7`
+  validatePositiveNumbers(
+    [target, ...trainingHours],
+    'Invalid input: Target and training hours must be positive numbers'
+  )
+
+  const exerciseResults = calculateExercises(trainingHours, target)
+  console.log(exerciseResults)
+}
+
+if (require.main === module) {
+  runCLI()
 }

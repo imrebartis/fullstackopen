@@ -1,3 +1,5 @@
+import { parseArguments, validatePositiveNumbers } from './cliHelper'
+
 export function calculateBMI(weight: number, height: number): string {
   if (weight <= 0 || height <= 0) {
     return 'Invalid input: Weight and height must be positive numbers'
@@ -19,4 +21,22 @@ export function calculateBMI(weight: number, height: number): string {
     default:
       return 'Very severely obese range'
   }
+}
+
+export function runCLI() {
+  const args = process.argv.slice(2)
+  const [weight, height] = parseArguments(args, 2)
+
+  // NB: You have to use the -- flag, i.e. sth like `npm run calculateBmi -- -80 2`
+  validatePositiveNumbers(
+    [weight, height],
+    'Invalid input: Weight and height must be positive numbers'
+  )
+
+  const bmiCategory = calculateBMI(weight, height)
+  console.log(`Your BMI category is ${bmiCategory}`)
+}
+
+if (require.main === module) {
+  runCLI()
 }
