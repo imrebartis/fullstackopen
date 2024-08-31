@@ -1,4 +1,4 @@
-import { parseArguments, validatePositiveNumbers } from './cliHelper'
+import { parseArguments, validateNonNegativeNumbers } from './validationHelper'
 
 export function calculateBMI(weight: number, height: number): string {
   if (weight <= 0 || height <= 0) {
@@ -24,17 +24,22 @@ export function calculateBMI(weight: number, height: number): string {
 }
 
 export function runCLI() {
-  const args = process.argv.slice(2)
-  const [weight, height] = parseArguments(args, 2)
+  try {
+    const args = process.argv.slice(2)
+    const [weight, height] = parseArguments(args, 2)
 
-  // NB: You have to use the -- flag, i.e. sth like `npm run calculateBmi -- -80 2`
-  validatePositiveNumbers(
-    [weight, height],
-    'Invalid input: Weight and height must be positive numbers'
-  )
+     // NB: You have to use the -- flag, i.e. sth like `npm run calculateBmi -- -80 2` to get the error message
+    validateNonNegativeNumbers(
+      [weight, height],
+      'Invalid input: Weight and height must be positive numbers'
+    )
 
-  const bmiCategory = calculateBMI(weight, height)
-  console.log(`Your BMI category is ${bmiCategory}`)
+    const bmiCategory = calculateBMI(weight, height)
+    console.log(`Your BMI category is ${bmiCategory}`)
+  } catch (error) {
+    console.error(error.message)
+    process.exit(1)
+  }
 }
 
 if (require.main === module) {

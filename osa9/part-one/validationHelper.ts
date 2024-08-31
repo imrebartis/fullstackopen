@@ -3,17 +3,15 @@ export function parseArguments(
   expectedLength: number
 ): number[] {
   if (args.length < expectedLength) {
-    console.log(
+    throw new Error(
       `Error: Expected at least ${expectedLength} arguments, but got ${args.length}`
     )
-    process.exit(1)
   }
 
   const numbers = args.map((arg) => {
     const num = parseFloat(arg)
     if (isNaN(num)) {
-      console.log(`Invalid input: "${arg}" is not a number`)
-      process.exit(1)
+      throw new Error(`Invalid input: "${arg}" is not a number`)
     }
     return num
   })
@@ -21,12 +19,8 @@ export function parseArguments(
   return numbers
 }
 
-export function validatePositiveNumbers(
-  numbers: number[],
-  errorMessage: string
-) {
-  if (numbers.some((num) => num <= 0)) {
-    console.log(errorMessage)
-    process.exit(1)
+export function validateNonNegativeNumbers(numbers: number[], errorMessage: string): void {
+  if (numbers.some(num => num < 0)) {
+    throw new Error(errorMessage);
   }
 }

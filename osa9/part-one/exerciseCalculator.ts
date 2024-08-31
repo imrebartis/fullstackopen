@@ -1,4 +1,4 @@
-import { parseArguments, validatePositiveNumbers } from './cliHelper'
+import { parseArguments, validateNonNegativeNumbers } from './validationHelper'
 
 interface Result {
   periodLength: number
@@ -16,9 +16,9 @@ export function calculateExercises(
 ): Result {
   const periodLength = trainingHours.length
   const trainingDays = trainingHours.filter((h) => h > 0).length
-  const success = trainingDays === periodLength
   const total = trainingHours.reduce((acc, cur) => acc + cur, 0)
   const average = total / periodLength
+  const success = trainingHours.every((h) => h >= target)
 
   let rating: number
   let ratingDescription: string
@@ -49,20 +49,25 @@ export function calculateExercises(
 }
 
 export function runCLI() {
-  const args = process.argv.slice(2)
-  const numbers = parseArguments(args, 2)
+  try {
+    const args = process.argv.slice(2)
+    const numbers = parseArguments(args, 2)
 
-  const target = numbers[0]
-  const trainingHours = numbers.slice(1)
+    const target = numbers[0]
+    const trainingHours = numbers.slice(1)
 
-  // NB: You have to use the -- flag, i.e. sth like `npm run calculateExercises -- -2 1 3 4 5 6 7`
-  validatePositiveNumbers(
-    [target, ...trainingHours],
-    'Invalid input: Target and training hours must be positive numbers'
-  )
+    // NB: You have to use the -- flag, i.e. sth like `npm run calculateExercises -- -2 1 3 4 5 6 7` to get the error message
+    validateNonNegativeNumbers(
+      [target, ...trainingHours],
+      'Invalid input: Target and training hours must be positive numbers'
+    )
 
-  const exerciseResults = calculateExercises(trainingHours, target)
-  console.log(exerciseResults)
+    const exerciseResults = calculateExercises(trainingHours, target)
+    console.log(exerciseResults)
+  } catch (error) {
+    console.error(error.message)
+    process.exit(1)
+  }
 }
 
 if (require.main === module) {
