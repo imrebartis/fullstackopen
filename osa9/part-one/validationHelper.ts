@@ -5,18 +5,18 @@ export function parseArguments(
   if (args.length < expectedLength) {
     throw new Error(
       `Error: Expected at least ${expectedLength} arguments, but got ${args.length}`
-    )
+    );
   }
 
   const numbers = args.map((arg) => {
-    const num = parseFloat(arg)
+    const num = parseFloat(arg);
     if (isNaN(num)) {
-      throw new Error(`Invalid input: "${arg}" is not a number`)
+      throw new Error(`Invalid input: "${arg}" is not a number`);
     }
-    return num
-  })
+    return num;
+  });
 
-  return numbers
+  return numbers;
 }
 
 export function validateNonNegativeNumbers(numbers: number[], errorMessage: string): void {
