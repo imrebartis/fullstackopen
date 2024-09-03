@@ -1,6 +1,12 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { calculateBMI } from './bmiCalculator';
 import { validateNonNegativeNumbers } from './validationHelper';
+import { calculateExercises } from './exerciseCalculator';
+
+interface ExerciseInput {
+  daily_exercises: number[];
+  target: number;
+}
 
 const app = express();
 
@@ -43,6 +49,33 @@ app.get('/bmi', (req, res) => {
     } else {
       return res.status(400).json({ error: 'An unknown error occurred' });
     }
+  }
+});
+
+app.post('/exercises', express.json(), (req: Request, res: Response) => {
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const { daily_exercises, target }: ExerciseInput = req.body;
+
+  if (!daily_exercises || !target) {
+    return res.status(400).json({ error: 'parameters missing' });
+  }
+
+  if (
+    !Array.isArray(daily_exercises) ||
+    !daily_exercises.every((num) => typeof num === 'number') ||
+    typeof target !== 'number'
+  ) {
+    return res.status(400).json({ error: 'malformatted parameters' });
+  }
+
+  try {
+    validateNonNegativeNumbers(daily_exercises, 'daily_exercises must be non-negative numbers');
+    validateNonNegativeNumbers([target], 'target must be a non-negative number');
+
+    const result = calculateExercises(daily_exercises, target);
+    return res.json(result);
+  } catch (error) {
+    return res.status(400).json({ error: error instanceof Error ? error.message : 'An unknown error occurred' });
   }
 });
 
