@@ -1,0 +1,12 @@
+.diary-list {
+  padding: 0;
+}
+
+.diary-item {
+  list-style-type: none;
+  padding: 0;
+}
+
+.error-message {
+  color: red;
+}
