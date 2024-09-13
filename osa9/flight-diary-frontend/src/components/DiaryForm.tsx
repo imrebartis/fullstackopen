@@ -18,6 +18,8 @@ const DiaryForm: React.FC<{ onSubmit: (diary: NewDiaryEntry) => void }> = ({
   };
 
   return (
+    <>
+    <h2>Add new entry</h2>
     <form onSubmit={handleSubmit}>
       <div>
         <label>Date:</label>
@@ -63,6 +65,7 @@ const DiaryForm: React.FC<{ onSubmit: (diary: NewDiaryEntry) => void }> = ({
       </div>
       <button type='submit'>add</button>
     </form>
+    </>
   );
 };
 

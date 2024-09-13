@@ -1,6 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import { DiaryEntry, NewDiaryEntry } from '../types';
 import { getAllDiaries, createDiary } from '../services/diariesService';
+
+interface ValidationError {
+  message: string
+  errors: Record<string, string[]>
+}
 
 const useDiaries = () => {
   const [diaries, setDiaries] = useState<DiaryEntry[]>([]);
@@ -13,9 +19,12 @@ const useDiaries = () => {
       try {
         const diariesData = await getAllDiaries();
         setDiaries(diariesData);
-      } catch (error: unknown) {
-        if (error instanceof Error) {
-          setError(error.message);
+      } catch (error) {
+        if (
+          axios.isAxiosError<ValidationError, Record<string, unknown>>(error)
+        ) {
+          setError(String(error.response?.data ?? error.message));
+          console.log(error);
         } else {
           setError('Failed to fetch diaries');
         }
@@ -31,9 +40,10 @@ const useDiaries = () => {
     try {
       const addedDiary = await createDiary(newDiary);
       setDiaries((prevDiaries) => [...prevDiaries, addedDiary]);
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        setError(error.message);
+    } catch (error) {
+      if (axios.isAxiosError<ValidationError, Record<string, unknown>>(error)) {
+        setError(String(error.response?.data ?? error.message));
+        console.log(error.response?.data);
       } else {
         setError('Failed to create diary');
       }
@@ -42,7 +52,11 @@ const useDiaries = () => {
     }
   }, []);
 
-  return { diaries, error, loading, handleCreateDiary };
+  const clearError = useCallback(() => {
+    setError(null);
+  }, []);
+
+  return { diaries, error, loading, handleCreateDiary, clearError };
 };
 
 export default useDiaries;
