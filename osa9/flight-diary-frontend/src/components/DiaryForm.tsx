@@ -6,7 +6,7 @@ const DiaryForm: React.FC<{ onSubmit: (diary: NewDiaryEntry) => void }> = ({
 }) => {
   const { form, handleChange, resetForm } = useForm({
     date: '',
-    visibility: Visibility.Good,
+    visibility: Visibility.Great,
     weather: Weather.Sunny,
     comment: ''
   });
@@ -19,52 +19,58 @@ const DiaryForm: React.FC<{ onSubmit: (diary: NewDiaryEntry) => void }> = ({
 
   return (
     <>
-    <h2>Add new entry</h2>
-    <form onSubmit={handleSubmit}>
-      <div>
-        <label>Date:</label>
-        <input
-          type='date'
-          name='date'
-          value={form.date}
-          onChange={handleChange}
-        />
-      </div>
-      <div>
-        <label>Visibility:</label>
-        <select
-          name='visibility'
-          value={form.visibility}
-          onChange={handleChange}
-        >
+      <h2>Add new entry</h2>
+      <form onSubmit={handleSubmit}>
+        <div>
+          <label>Date:</label>
+          <input
+            type='date'
+            name='date'
+            value={form.date}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label>Visibility:</label>
           {Object.values(Visibility).map((v) => (
-            <option key={v} value={v}>
+            <label key={v}>
+              <input
+                type='radio'
+                name='visibility'
+                value={v}
+                checked={form.visibility === v}
+                onChange={handleChange}
+              />
               {v}
-            </option>
+            </label>
           ))}
-        </select>
-      </div>
-      <div>
-        <label>Weather:</label>
-        <select name='weather' value={form.weather} onChange={handleChange}>
+        </div>
+        <div>
+          <label>Weather:</label>
           {Object.values(Weather).map((w) => (
-            <option key={w} value={w}>
+            <label key={w}>
+              <input
+                type='radio'
+                name='weather'
+                value={w}
+                checked={form.weather === w}
+                onChange={handleChange}
+              />
               {w}
-            </option>
+            </label>
           ))}
-        </select>
-      </div>
-      <div>
-        <label>Comment:</label>
-        <input
-          type='text'
-          name='comment'
-          value={form.comment}
-          onChange={handleChange}
-        />
-      </div>
-      <button type='submit'>add</button>
-    </form>
+        </div>
+        <div>
+          <label>Comment:</label>
+          <input
+            type='text'
+            name='comment'
+            value={form.comment}
+            onChange={handleChange}
+          />
+        </div>
+        <button type='submit'>add</button>
+      </form>
     </>
   );
 };

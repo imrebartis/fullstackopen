@@ -43,7 +43,6 @@ const useDiaries = () => {
     } catch (error) {
       if (axios.isAxiosError<ValidationError, Record<string, unknown>>(error)) {
         setError(String(error.response?.data ?? error.message));
-        console.log(error.response?.data);
       } else {
         setError('Failed to create diary');
       }
