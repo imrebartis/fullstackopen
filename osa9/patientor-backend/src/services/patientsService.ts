@@ -8,7 +8,8 @@ const getPatients = (): PublicPatient[] => {
     name,
     dateOfBirth,
     gender,
-    occupation
+    occupation,
+    entries: []
   }));
 };
 
