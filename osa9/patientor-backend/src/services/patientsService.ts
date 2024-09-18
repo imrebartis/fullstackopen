@@ -1,26 +1,33 @@
 import patients from '../data/patients';
 import { v4 as uuidv4 } from 'uuid';
-import { NewPatient, PublicPatient } from '../types';
+import { Patient, PublicPatient } from '../types';
+import { NewPatientType } from '../utils/toNewPatient';
 
 const getPatients = (): PublicPatient[] => {
-  return patients.map(({ id, name, dateOfBirth, gender, occupation }) => ({
-    id,
-    name,
-    dateOfBirth,
-    gender,
-    occupation,
-    entries: []
-  }));
+  return patients.map(
+    ({ id, name, dateOfBirth, gender, occupation, entries }) => ({
+      id,
+      name,
+      dateOfBirth,
+      gender,
+      occupation,
+      entries
+    })
+  );
 };
 
 const findById = (id: string): PublicPatient | undefined => {
   const entry = patients.find((p) => p.id === id);
-  return entry;
+  if (entry) {
+    const { id, name, dateOfBirth, gender, occupation, entries } = entry;
+    return { id, name, dateOfBirth, gender, occupation, entries };
+  }
+  return undefined;
 };
 
-const addPatient = (patient: NewPatient) => {
+const addPatient = (patient: NewPatientType): Patient => {
   const id = uuidv4();
-  const newPatient = {
+  const newPatient: Patient = {
     id,
     ...patient
   };
