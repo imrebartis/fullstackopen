@@ -3,11 +3,11 @@ import { z } from 'zod';
 import patientsService from '../services/patientsService';
 import { NewPatientSchema, NewPatientType } from '../utils/toNewPatient';
 
-import { Patient, PublicPatient } from '../types';
+import { Patient } from '../types';
 
 const router = express.Router();
 
-router.get('/', (_req, res: Response<PublicPatient[]>) => {
+router.get('/', (_req, res: Response<Patient[]>) => {
   res.send(patientsService.getPatients());
 });
 
