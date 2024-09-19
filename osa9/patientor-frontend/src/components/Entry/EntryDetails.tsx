@@ -1,32 +1,23 @@
 import { memo } from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import { Entry, EntryType, HealthCheckRating } from '../../types';
+import DiagnosisList from './DiagnosisList';
 
 const BaseEntryContent: React.FC<{ entry: Entry }> = ({ entry }) => (
   <Box>
-    <Box display='flex'>
-      <Typography variant='body1'>{entry.date}</Typography>
+    <Box display='inline'>
+      <Typography variant='body1' display='inline'>
+        {entry.date}
+      </Typography>
       <Typography
         variant='body1'
+        display='inline'
         sx={{ marginLeft: '4px', fontStyle: 'italic' }}
       >
         {entry.description}
       </Typography>
     </Box>
-    {entry.diagnosisCodes && (
-      <Box>
-        <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
-          Diagnosis Codes:
-        </Typography>
-        <ul>
-          {entry.diagnosisCodes.map((code) => (
-            <li key={code}>
-              <Typography variant='body2'>{code}</Typography>
-            </li>
-          ))}
-        </ul>
-      </Box>
-    )}
+    {entry.diagnosisCodes && <DiagnosisList codes={entry.diagnosisCodes} />}
   </Box>
 );
 
@@ -43,7 +34,6 @@ const EntryDetails: React.FC<{ entry: Entry }> = memo(({ entry }) => {
             >
               Health Check Rating:&nbsp;
             </Typography>
-
             {HealthCheckRating[entry.healthCheckRating]}
           </Typography>
         );
@@ -57,7 +47,7 @@ const EntryDetails: React.FC<{ entry: Entry }> = memo(({ entry }) => {
                 sx={{ fontWeight: 'bold' }}
               >
                 Discharge Date:&nbsp;
-              </Typography>{' '}
+              </Typography>
               {entry.discharge.date}
             </Typography>
             <Typography variant='body2'>
@@ -83,7 +73,6 @@ const EntryDetails: React.FC<{ entry: Entry }> = memo(({ entry }) => {
               >
                 Employer:&nbsp;
               </Typography>
-
               {entry.employerName}
             </Typography>
             {entry.sickLeave && (
