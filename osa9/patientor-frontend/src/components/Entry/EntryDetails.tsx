@@ -1,7 +1,10 @@
 import { memo } from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
-import { Entry, EntryType, HealthCheckRating } from '../../types';
+import { Entry, EntryType } from '../../types';
+import HealthCheckRatingIcon from './Icons/HealthCheckRatingIcon';
 import DiagnosisList from './DiagnosisList';
+import EntryIcon from './Icons/EntryIcon';
+import { assertNever } from '../../utils';
 
 const BaseEntryContent: React.FC<{ entry: Entry }> = ({ entry }) => (
   <Box>
@@ -9,9 +12,18 @@ const BaseEntryContent: React.FC<{ entry: Entry }> = ({ entry }) => (
       <Typography variant='body1' display='inline'>
         {entry.date}
       </Typography>
+      <EntryIcon type={entry.type} />
+      {entry.type === EntryType.OccupationalHealthcare && (
+        <Typography
+          variant='body1'
+          display='inline'
+          sx={{ marginLeft: '4px', fontWeight: 'bold' }}
+        >
+          {entry.employerName}
+        </Typography>
+      )}
       <Typography
         variant='body1'
-        display='inline'
         sx={{ marginLeft: '4px', fontStyle: 'italic' }}
       >
         {entry.description}
@@ -25,18 +37,7 @@ const EntryDetails: React.FC<{ entry: Entry }> = memo(({ entry }) => {
   const renderEntryDetails = () => {
     switch (entry.type) {
       case EntryType.HealthCheck:
-        return (
-          <Typography variant='body2'>
-            <Typography
-              component='span'
-              variant='body2'
-              sx={{ fontWeight: 'bold' }}
-            >
-              Health Check Rating:&nbsp;
-            </Typography>
-            {HealthCheckRating[entry.healthCheckRating]}
-          </Typography>
-        );
+        return <HealthCheckRatingIcon rating={entry.healthCheckRating} />;
       case EntryType.Hospital:
         return (
           <>
@@ -64,32 +65,22 @@ const EntryDetails: React.FC<{ entry: Entry }> = memo(({ entry }) => {
         );
       case EntryType.OccupationalHealthcare:
         return (
-          <>
-            <Typography variant='body2'>
-              <Typography
-                component='span'
-                variant='body2'
-                sx={{ fontWeight: 'bold' }}
-              >
-                Employer:&nbsp;
+          entry.sickLeave && (
+            <Box>
+              <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
+                Sick Leave:
               </Typography>
-              {entry.employerName}
-            </Typography>
-            {entry.sickLeave && (
-              <Box>
-                <Typography variant='body2' sx={{ fontWeight: 'bold' }}>
-                  Sick Leave:
-                </Typography>
-                <Typography variant='body2'>
-                  Start Date:&nbsp; {entry.sickLeave.startDate}
-                </Typography>
-                <Typography variant='body2'>
-                  End Date:&nbsp; {entry.sickLeave.endDate}
-                </Typography>
-              </Box>
-            )}
-          </>
+              <Typography variant='body2'>
+                Start Date:&nbsp; {entry.sickLeave.startDate}
+              </Typography>
+              <Typography variant='body2'>
+                End Date:&nbsp; {entry.sickLeave.endDate}
+              </Typography>
+            </Box>
+          )
         );
+      default:
+        return assertNever(entry);
     }
   };
 
@@ -98,6 +89,7 @@ const EntryDetails: React.FC<{ entry: Entry }> = memo(({ entry }) => {
       <CardContent>
         <BaseEntryContent entry={entry} />
         {renderEntryDetails()}
+        <Typography variant='body2'>diagnose by {entry.specialist}</Typography>
       </CardContent>
     </Card>
   );
