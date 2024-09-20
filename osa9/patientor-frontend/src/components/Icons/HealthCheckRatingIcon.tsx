@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import { HealthCheckRating } from '../../../types';
+import { HealthCheckRating } from '../../types';
 
 const HealthCheckRatingIcon: React.FC<{ rating: HealthCheckRating }> = ({
   rating

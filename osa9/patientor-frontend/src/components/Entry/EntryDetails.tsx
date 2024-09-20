@@ -1,9 +1,9 @@
 import { memo } from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import { Entry, EntryType } from '../../types';
-import HealthCheckRatingIcon from './Icons/HealthCheckRatingIcon';
+import HealthCheckRatingIcon from '../Icons/HealthCheckRatingIcon';
 import DiagnosisList from './DiagnosisList';
-import EntryIcon from './Icons/EntryIcon';
+import EntryIcon from '../Icons/EntryIcon';
 import { assertNever } from '../../utils';
 
 const BaseEntryContent: React.FC<{ entry: Entry }> = ({ entry }) => (

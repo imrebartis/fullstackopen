@@ -1,9 +1,9 @@
 import { memo } from 'react';
-import { EntryType } from '../../../types';
+import { EntryType } from '../../types';
 import LocalHospitalIcon from '@mui/icons-material/LocalHospital';
 import MedicalServicesIcon from '@mui/icons-material/MedicalServices';
 import WorkIcon from '@mui/icons-material/Work';
-import { assertNever } from '../../../utils';
+import { assertNever } from '../../utils';
 
 const EntryIcon: React.FC<{ type: EntryType }> = ({ type }) => {
   switch (type) {

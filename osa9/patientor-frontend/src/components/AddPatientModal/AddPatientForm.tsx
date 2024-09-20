@@ -52,7 +52,7 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
       <form onSubmit={addPatient}>
         <TextField
           label="Name"
-          fullWidth 
+          fullWidth
           value={name}
           onChange={({ target }) => setName(target.value)}
         />
@@ -96,9 +96,9 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
         <Grid>
           <Grid item>
             <Button
-              color="secondary"
+              color="error"
               variant="contained"
-              style={{ float: "left" }}
+              sx={{ float: "left" }}
               type="button"
               onClick={onCancel}
             >
@@ -107,11 +107,11 @@ const AddPatientForm = ({ onCancel, onSubmit }: Props) => {
           </Grid>
           <Grid item>
             <Button
-              style={{
+              sx={{
                 float: "right",
               }}
               type="submit"
-              variant="contained"
+              variant="outlined"
             >
               Add
             </Button>

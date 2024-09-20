@@ -17,25 +17,26 @@ const DiagnosisList: React.FC<{ codes: string[] }> = ({ codes }) => {
         Diagnosis Codes:
       </Typography>
       <List style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-        {codes.map((code) => {
-          const diagnosis = diagnoses.find((d) => d.code === code);
-          return (
-            <ListItem key={code} style={{ display: 'list-item' }}>
-              <ListItemText
-                primary={
-                  <>
+      {codes.length === 0 ? (
+        <Typography variant='body2'>Diagnosis codes missing</Typography>
+      ) : (
+        <List style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+          {codes.map((code) => {
+            const diagnosis = diagnoses.find((d) => d.code === code);
+            return (
+              <ListItem key={code} style={{ display: 'list-item' }}>
+                <ListItemText
+                  primary={
                     <Typography variant='body2' display='inline'>
-                      {code}&nbsp;
+                      {diagnosis?.code || 'Unknown diagnosis'}
                     </Typography>
-                    <Typography variant='body2' display='inline'>
-                    {diagnosis?.name || 'Unknown diagnosis'}
-                    </Typography>
-                  </>
-                }
-              />
-            </ListItem>
-          );
-        })}
+                  }
+                />
+              </ListItem>
+            );
+          })}
+        </List>
+      )}
       </List>
     </Box>
   );
