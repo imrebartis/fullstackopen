@@ -1,21 +1,30 @@
 import { memo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Typography, Box, Button } from '@mui/material';
-import { Patient, EntryType, EntryWithoutId, HealthCheckEntry } from '../types';
+import { Patient, EntryWithoutId } from '../types';
 import { usePatient } from '../hooks/usePatient';
 import { useDiagnosis } from '../hooks/useDiagnosis';
 import Loading from './Loading';
 import Error from './Error';
 import GenderIcon from './Icons/GenderIcon';
 import EntryList from './Entry/EntryList';
-import HealthCheckEntryForm from './HealthCheckEntryForm';
+import EntryForm from './Entry/EntryForm';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const PatientDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { patient, loading: patientLoading, error: patientError, addEntry } = usePatient(id);
-  const { diagnoses, loading: diagnosesLoading, error: diagnosesError } = useDiagnosis();
+  const {
+    patient,
+    loading: patientLoading,
+    error: patientError,
+    addEntry
+  } = usePatient(id);
+  const {
+    diagnoses,
+    loading: diagnosesLoading,
+    error: diagnosesError
+  } = useDiagnosis();
   const [showEntryForm, setShowEntryForm] = useState(false);
 
   if (patientLoading || diagnosesLoading) return <Loading />;
@@ -24,13 +33,10 @@ const PatientDetails: React.FC = () => {
     toast.error(diagnosesError);
     return <Error error={diagnosesError} />;
   }
-  if (!patient) return <Error error='Unexpected error: Patient data is missing' />;
+  if (!patient)
+    return <Error error='Unexpected error: Patient data is missing' />;
 
-  const handleAddEntry = async (values: Omit<HealthCheckEntry, 'id' | 'type'>) => {
-    const newEntry: EntryWithoutId = {
-      ...values,
-      type: EntryType.HealthCheck
-    };
+  const handleAddEntry = async (newEntry: EntryWithoutId) => {
     try {
       await addEntry(newEntry);
       toast.success('Entry successfully created');
@@ -42,14 +48,19 @@ const PatientDetails: React.FC = () => {
 
   return (
     <Box>
-      <Typography variant='h5' component='h2' gutterBottom sx={{ fontWeight: 'bold' }}>
+      <Typography
+        variant='h5'
+        component='h2'
+        gutterBottom
+        sx={{ fontWeight: 'bold' }}
+      >
         {patient.name} <GenderIcon gender={patient.gender} />
       </Typography>
       <PatientInfo patient={patient} />
       {!showEntryForm && (
         <Button
-          variant="contained"
-          color="primary"
+          variant='contained'
+          color='primary'
           onClick={() => setShowEntryForm(true)}
           sx={{ mt: 2 }}
         >
@@ -58,8 +69,10 @@ const PatientDetails: React.FC = () => {
       )}
       {showEntryForm && (
         <Box mt={2}>
-          <Typography variant="h6" gutterBottom>Add new HealthCheck entry</Typography>
-          <HealthCheckEntryForm
+          <Typography variant='h6' gutterBottom>
+            Add new entry
+          </Typography>
+          <EntryForm
             onSubmit={handleAddEntry}
             onCancel={() => setShowEntryForm(false)}
             diagnoses={diagnoses || []}
@@ -67,7 +80,7 @@ const PatientDetails: React.FC = () => {
         </Box>
       )}
       <EntryList entries={patient.entries} />
-      <ToastContainer position="top-right" autoClose={5000} />
+      <ToastContainer position='top-right' autoClose={5000} />
     </Box>
   );
 };

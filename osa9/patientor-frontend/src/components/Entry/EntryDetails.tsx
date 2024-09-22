@@ -8,27 +8,23 @@ import { assertNever } from '../../utils';
 
 const BaseEntryContent: React.FC<{ entry: Entry }> = ({ entry }) => (
   <Box>
-    <Box display='inline'>
-      <Typography variant='body1' display='inline'>
-        {entry.date}
-      </Typography>
-      <EntryIcon type={entry.type} />
+    <Box display='flex' alignItems='center'>
+      <Typography variant='body1'>{entry.date}</Typography>
+      <Box ml={1}>
+        <EntryIcon type={entry.type} />
+      </Box>
       {entry.type === EntryType.OccupationalHealthcare && (
         <Typography
           variant='body1'
-          display='inline'
           sx={{ marginLeft: '4px', fontWeight: 'bold' }}
         >
           {entry.employerName}
         </Typography>
       )}
-      <Typography
-        variant='body1'
-        sx={{ marginLeft: '4px', fontStyle: 'italic' }}
-      >
-        {entry.description}
-      </Typography>
     </Box>
+    <Typography variant='body1' sx={{ marginTop: '4px', fontStyle: 'italic' }}>
+      {entry.description}
+    </Typography>
     {entry.diagnosisCodes && <DiagnosisList codes={entry.diagnosisCodes} />}
   </Box>
 );
